@@ -16,6 +16,7 @@ interface SceneState {
   running: boolean;
   rafId: number;
   lastScrollY: number;
+  cleanupFns: (() => void)[];
 }
 
 let state: SceneState | null = null;
@@ -117,11 +118,26 @@ export function initScene(): void {
   function resize() {
     const w = window.innerWidth;
     const h = window.innerHeight;
+    const aspect = w / h;
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     uniforms.uResolution.value.set(w, h);
+    // Proper orthographic aspect handling
+    if (aspect > 1) {
+      camera.left = -aspect;
+      camera.right = aspect;
+      camera.top = 1;
+      camera.bottom = -1;
+    } else {
+      camera.left = -1;
+      camera.right = 1;
+      camera.top = 1 / aspect;
+      camera.bottom = -1 / aspect;
+    }
+    camera.updateProjectionMatrix();
   }
   window.addEventListener('resize', resize);
+  cleanupFns.push(() => window.removeEventListener('resize', resize));
   resize();
 
   // Mouse
@@ -139,22 +155,27 @@ export function initScene(): void {
     }
   }
   window.addEventListener('mousemove', onMouse);
+  cleanupFns.push(() => window.removeEventListener('mousemove', onMouse));
   window.addEventListener('touchmove', onTouch, { passive: true });
+  cleanupFns.push(() => window.removeEventListener('touchmove', onTouch));
 
   // Scroll — velocity-only tracking (no sections)
   let scroll = 0;
   let scrollVelocity = 0;
   let lastScrollY = window.scrollY;
   let velocitySmooth = 0;
+  const cleanupFns: (() => void)[] = [];
 
   function onScroll() {
     const current = window.scrollY;
-    scroll = current / (document.documentElement.scrollHeight - window.innerHeight);
+    const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+    scroll = Math.min(current / maxScroll, 1);
     const delta = Math.abs(current - lastScrollY);
     scrollVelocity = delta / 16;
     lastScrollY = current;
   }
   window.addEventListener('scroll', onScroll, { passive: true });
+  cleanupFns.push(() => window.removeEventListener('scroll', onScroll));
 
   /* ── Animation loop ── */
   const clock = new THREE.Clock();
@@ -200,8 +221,7 @@ export function initScene(): void {
       obj.position.y += scrollDrift;
 
       // Z-axis breathing with scroll velocity
-      obj.position.z = Math.sin(elapsed * 0.5 + data.floatOffset) * 0.05
-        + velocitySmooth * 0.02;
+      obj.position.z = -Math.abs(Math.sin(elapsed * 0.5 + data.floatOffset) * 0.05 + velocitySmooth * 0.02);
 
       // Mouse repulsion with restoring spring
       const dx = mouse.x - (obj.position.x * 0.5 + 0.5);
@@ -234,6 +254,7 @@ export function initScene(): void {
     renderer, scene, camera, shaderMaterial, mesh,
     mouse, targetMouse, scroll, scrollVelocity,
     objects, clock, running, rafId: 0, lastScrollY,
+    cleanupFns,
   };
 
   animate();
@@ -242,7 +263,8 @@ export function initScene(): void {
 export function destroyScene(): void {
   if (!state) return;
   state.running = false;
-  cancelAnimationFrame(state.rafId);
+  if (state.rafId) cancelAnimationFrame(state.rafId);
+  if (state.cleanupFns) state.cleanupFns.forEach(fn => fn());
   state.renderer.dispose();
   state = null;
 }
