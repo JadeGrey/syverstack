@@ -1,0 +1,35 @@
+---
+// Server-rendered: just the static canvas element
+// Script initializes Three.js on client
+---
+
+<canvas id="webgl-canvas" class="webgl-canvas" aria-hidden="true"></canvas>
+
+<script>
+import { initScene, destroyScene } from '../../scripts/webgl/main';
+
+// Wait for DOM + fonts loaded before starting (avoids frame drops)
+if (document.readyState === 'complete') {
+  initScene();
+} else {
+  window.addEventListener('load', initScene, { once: true });
+}
+
+// Cleanup on page navigation (SPA-like)
+document.addEventListener('astro:before-swap', () => {
+  destroyScene();
+});
+</script>
+
+<style is:global>
+  #webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+  }
+</style>

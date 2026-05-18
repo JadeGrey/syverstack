@@ -1,0 +1,346 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout navVariant="home">
+  <!-- ====== HERO ====== -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <p class="hero-eyebrow stagger-item" style="--stagger-index: 0">// AI ENGINEER</p>
+        <h1 class="hero-name stagger-item" style="--stagger-index: 1">Sami Syverson</h1>
+        <p class="hero-tagline stagger-item" style="--stagger-index: 2">The future is here, AI is the frontier of the next generation.</p>
+        <div class="hero-actions stagger-item" style="--stagger-index: 3">
+          <a href="#projects" class="btn btn-primary">See my work</a>
+          <a href="/bio" class="btn btn-ghost">About me →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PROJECTS ====== -->
+  <section id="projects">
+    <div class="container">
+      <div class="section-header stagger-item" style="--stagger-index: 0">
+        <p class="section-number">PROJECTS</p>
+        <h2 class="section-title">What I've built</h2>
+        <div class="section-line"></div>
+      </div>
+      <div data-stagger-group="projects" class="projects-grid">
+        <article class="project-card featured stagger-item glow-hover" style="--stagger-index: 0">
+          <div class="project-info">
+            <div class="project-icon">🤖</div>
+            <h3 class="project-title">SyverClaw</h3>
+            <p class="project-desc">AI coding assistant framework — agent-driven development, sub-agent orchestration, and autonomous code generation. Built on the same architecture that powers my own workflows.</p>
+            <div class="project-tech">
+              <span>Claude API</span><span>Agent Systems</span><span>TypeScript</span><span>MCP</span>
+            </div>
+          </div>
+          <div class="project-visual">
+            <span class="project-visual-text">// interactive demo</span>
+          </div>
+        </article>
+
+        <article class="project-card stagger-item glow-hover" style="--stagger-index: 1">
+          <div class="project-icon">🎵</div>
+          <h3 class="project-title">YokaiBot</h3>
+          <p class="project-desc">Feature-rich Discord bot in Rust — 23 slash commands across music, economy, and AI recommendation. PostgreSQL + pgvector + Songbird audio pipeline.</p>
+          <div class="project-tech">
+            <span>Rust</span><span>Serenity</span><span>PostgreSQL</span><span>pgvector</span>
+          </div>
+        </article>
+
+        <article class="project-card stagger-item glow-hover" style="--stagger-index: 2">
+          <div class="project-icon">🎨</div>
+          <h3 class="project-title">THEMER</h3>
+          <p class="project-desc">Multi-platform theme engine — design tokens, CSS variable generation, and cross-framework theming. Ships consistent visual identity across any frontend.</p>
+          <div class="project-tech">
+            <span>Design Systems</span><span>CSS</span><span>JSON</span><span>CLI</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== SKILLS ====== -->
+  <section id="skills">
+    <div class="container">
+      <div class="section-header stagger-item" style="--stagger-index: 0">
+        <p class="section-number">SKILLS</p>
+        <h2 class="section-title">What I work with</h2>
+        <div class="section-line"></div>
+      </div>
+      <div data-stagger-group="skills" class="skills-grid">
+        <div class="skill-category stagger-item glow-hover" style="--stagger-index: 0">
+          <h3 class="skill-cat-title">Languages</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Rust</span>
+            <span class="skill-tag">TypeScript</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">SQL</span>
+            <span class="skill-tag">HTML/CSS</span>
+          </div>
+        </div>
+        <div class="skill-category stagger-item glow-hover" style="--stagger-index: 1">
+          <h3 class="skill-cat-title">AI & Data</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">LLMs</span>
+            <span class="skill-tag">pgvector</span>
+            <span class="skill-tag">Embeddings</span>
+            <span class="skill-tag">PyTorch</span>
+            <span class="skill-tag">RAG</span>
+            <span class="skill-tag">Agent Systems</span>
+          </div>
+        </div>
+        <div class="skill-category stagger-item glow-hover" style="--stagger-index: 2">
+          <h3 class="skill-cat-title">Systems</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">PostgreSQL</span>
+            <span class="skill-tag">Linux</span>
+            <span class="skill-tag">Docker</span>
+            <span class="skill-tag">Git</span>
+            <span class="skill-tag">CI/CD</span>
+            <span class="skill-tag">Discord API</span>
+          </div>
+        </div>
+        <div class="skill-category stagger-item glow-hover" style="--stagger-index: 3">
+          <h3 class="skill-cat-title">Frontend</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">CSS Custom Props</span>
+            <span class="skill-tag">Animation</span>
+            <span class="skill-tag">Design Systems</span>
+            <span class="skill-tag">Responsive</span>
+            <span class="skill-tag">Accessibility</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script src="../scripts/staggerReveal.ts"></script>
+
+<style is:global>
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 6rem;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-content {
+    max-width: 600px;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--type-sm);
+    color: var(--color-accent-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: var(--space-md);
+  }
+  .hero-name {
+    font-family: var(--font-display);
+    font-weight: var(--weight-heading);
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-display);
+    text-shadow: 0 0 40px var(--color-accent-glow),
+                 0 0 80px rgba(255, 59, 140, 0.2);
+    margin-bottom: var(--space-md);
+  }
+  .hero-tagline {
+    font-family: var(--font-body);
+    font-weight: var(--weight-body);
+    font-size: var(--type-xl);
+    color: var(--color-text-body);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-xl);
+    max-width: 440px;
+  }
+  .hero-actions {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  /* ===== PROJECTS ===== */
+  #projects {
+    padding: var(--space-3xl) 0;
+  }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+  .project-card {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--duration-normal) var(--ease-base);
+  }
+  .project-card:hover {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 32px var(--color-accent-glow);
+    transform: translateY(-2px);
+  }
+  .project-card.featured {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+    border-color: var(--color-border-strong);
+  }
+  .project-card.featured::before {
+    content: 'FEATURED';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--color-accent-secondary);
+    padding: 2px 8px;
+    border: 1px solid var(--color-accent-secondary);
+    border-radius: var(--radius-sm);
+    opacity: 0.7;
+  }
+  .project-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+    filter: drop-shadow(0 0 8px var(--color-accent-glow));
+  }
+  .project-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--type-xl);
+    color: var(--color-text-display);
+    margin-bottom: var(--space-xs);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .project-card:hover .project-title {
+    color: var(--color-accent-primary);
+  }
+  .project-desc {
+    font-size: var(--type-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-md);
+  }
+  .project-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  .project-tech span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-accent-secondary);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 245, 255, 0.05);
+    border: 1px solid rgba(0, 245, 255, 0.15);
+  }
+  .project-visual {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: var(--color-surface-interactive);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    color: var(--color-text-muted);
+    position: relative;
+    overflow: hidden;
+  }
+  .project-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 59, 140, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ===== SKILLS ===== */
+  #skills {
+    padding: var(--space-3xl) 0;
+  }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-md);
+  }
+  .skill-category {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+  .skill-category:hover {
+    border-color: var(--color-border-strong);
+  }
+  .skill-category::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-accent-secondary), transparent);
+    opacity: 0.3;
+  }
+  .skill-cat-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--type-sm);
+    color: var(--color-accent-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-md);
+    text-shadow: 0 0 8px rgba(0, 245, 255, 0.2);
+  }
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  .skill-tag {
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-interactive);
+    color: var(--color-text-body);
+    border: 1px solid var(--color-border-subtle);
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  .skill-tag:hover {
+    border-color: var(--color-accent-primary);
+    color: var(--color-accent-primary);
+    box-shadow: 0 0 8px var(--color-accent-glow);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    .projects-grid { grid-template-columns: 1fr; }
+    .project-card.featured { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .hero-name { font-size: 2.5rem; }
+    .skills-grid { grid-template-columns: 1fr; }
+  }
+</style>

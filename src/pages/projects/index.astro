@@ -1,0 +1,118 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Projects — Sami Syverson" description="Full portfolio of AI engineering projects by Sami Syverson." navVariant="inner">
+  <section class="projects-page">
+    <div class="container">
+      <div class="section-header stagger-item" style="--stagger-index: 0">
+        <p class="section-number">PROJECTS</p>
+        <h1 class="section-title">Everything I've built</h1>
+        <div class="section-line"></div>
+      </div>
+
+      <div data-stagger-group="projects-list" class="projects-all-grid">
+        {projects.map((project, idx) => (
+          <a href={`/projects/${project.slug}`} class="project-all-card stagger-item glow-hover" style={`--stagger-index: ${idx}`}>
+            <div class="project-all-icon">{project.data.icon || '📦'}</div>
+            <div class="project-all-info">
+              <h2 class="project-all-title">{project.data.title}</h2>
+              <p class="project-all-desc">{project.data.description}</p>
+              <div class="project-all-tech">
+                {project.data.tech.slice(0, 4).map(t => <span>{t}</span>)}
+                {project.data.tech.length > 4 && <span class="project-all-more">+{project.data.tech.length - 4}</span>}
+              </div>
+            </div>
+            <span class="project-all-arrow">→</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script src="../../scripts/staggerReveal.ts"></script>
+
+<style is:global>
+  .projects-page {
+    padding-top: 8rem;
+    padding-bottom: var(--space-3xl);
+    min-height: 100vh;
+  }
+  .projects-all-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .project-all-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-lg);
+    align-items: center;
+    padding: var(--space-lg);
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--duration-fast) var(--ease-out);
+    position: relative;
+    overflow: hidden;
+  }
+  .project-all-card:hover {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 24px var(--color-accent-glow);
+    transform: translateX(4px);
+    text-shadow: none;
+  }
+  .project-all-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 0 6px var(--color-accent-glow));
+  }
+  .project-all-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--type-lg);
+    color: var(--color-text-display);
+    margin-bottom: var(--space-xs);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .project-all-card:hover .project-all-title {
+    color: var(--color-accent-primary);
+  }
+  .project-all-desc {
+    font-size: var(--type-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-sm);
+  }
+  .project-all-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  .project-all-tech span {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-accent-secondary);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 245, 255, 0.05);
+    border: 1px solid rgba(0, 245, 255, 0.15);
+  }
+  .project-all-more {
+    color: var(--color-text-muted) !important;
+    border-color: var(--color-border-subtle) !important;
+  }
+  .project-all-arrow {
+    color: var(--color-text-muted);
+    font-size: var(--type-xl);
+    transition: transform var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  }
+  .project-all-card:hover .project-all-arrow {
+    transform: translateX(4px);
+    color: var(--color-accent-primary);
+  }
+</style>

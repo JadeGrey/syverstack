@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "tech": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "featured": {
+      "default": false,
+      "type": "boolean"
+    },
+    "order": {
+      "default": 99,
+      "type": "number"
+    },
+    "liveUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "repoUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "status": {
+      "default": "live",
+      "type": "string",
+      "enum": [
+        "live",
+        "wip",
+        "archived"
+      ]
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "tech"
+  ]
+}

@@ -1,0 +1,57 @@
+---
+title: YokaiBot
+description: Feature-rich Discord bot in Rust — 23 slash commands across music, economy, and AI recommendation.
+icon: 🎵
+tech:
+  - Rust
+  - Serenity
+  - PostgreSQL
+  - pgvector
+  - Songbird
+  - yt-dlp
+featured: true
+order: 2
+repoUrl: https://github.com/JadeGrey/yokai
+---
+
+## Overview
+
+Yokai is a multi-domain Discord bot built entirely in Rust, deployed to a live server with 23 slash commands. It spans music playback, virtual economy, and AI-powered music recommendations.
+
+## Architecture
+
+A 5-crate Rust workspace — clean modular separation without the overhead of a microservice architecture:
+
+```
+yokai/
+├── yokai-core/       → Shared types, DB trait, event bus, unified embeds
+├── yokai-music/      → Queue management, yt-dlp search, Songbird audio pipeline
+├── yokai-economy/    → Currency math, XP/leveling, items, trading
+├── yokai-recommend/  → Sound feature extraction, similarity, collaborative filtering
+├── yokai-bot/        → Serenity bot, command routing, 23 slash handlers
+```
+
+## Key Design Decisions
+
+### Shared Embed Builder
+All Discord embeds flow through `YokaiEmbed` in yokai-core — enforced colors, footer timestamps, consistent formatting across all 23 commands. One change propagates everywhere.
+
+### Command Router
+A `CommandName` enum → match dispatch pattern. O(1) jump table, compile-time exhaustiveness check. Adding a new command means adding one enum variant and one match arm.
+
+### Database-First Economy
+Every economy command queries the PostgreSQL ledger table directly. Fresh users start at 0. No caching layer — the DB is fast enough for Discord's rate limits.
+
+## Live Features
+
+Economy: /balance /daily /leaderboard /inventory /shop /buy
+Music: /play /skip /pause /resume /queue /shuffle /loop /search /nowplaying /playlist
+Admin: /ping /help /info /stats
+Recommend: /recommend /taste /similar
+
+## Tech Stack
+
+- **Runtime:** Rust with Tokio async runtime
+- **Database:** PostgreSQL 18 with pgvector 0.8.2
+- **Audio:** Songbird 0.5, yt-dlp, bliss-audio for feature extraction
+- **AI:** pgvector similarity search on extracted audio fingerprints

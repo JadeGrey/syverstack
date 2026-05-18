@@ -1,0 +1,57 @@
+---
+title: THEMER
+description: Multi-platform theme engine — design tokens, CSS variable generation, cross-framework theming.
+icon: 🎨
+tech:
+  - Design Systems
+  - CSS
+  - JSON
+  - CLI
+  - Figma
+featured: true
+order: 3
+---
+
+## What is THEMER?
+
+THEMER is a design token engine that bridges the gap between design specs and production code. Write tokens once, generate CSS custom properties, Tailwind configs, JSON schemas, and documentation — all from a single source of truth.
+
+## The Problem
+
+Every project starts with colors and spacing. Then you add another project. And another. And suddenly you're maintaining 5 different versions of the same design tokens, and they've all drifted apart.
+
+THEMER solves this with a **single source of truth** that generates platform-specific outputs.
+
+## How It Works
+
+### Token Definition
+```json
+{
+  "color": {
+    "accent": {
+      "primary": { "value": "#ff3b8c" },
+      "secondary": { "value": "#00f5ff" }
+    },
+    "surface": {
+      "base": { "value": "#05070d" }
+    }
+  }
+}
+```
+
+### Generated Outputs
+
+THEMER can output:
+- **CSS Custom Properties** — `--color-accent-primary: #ff3b8c`
+- **Tailwind Config** — extended theme colors
+- **JSON Tokens** — for design tool import
+- **SCSS Variables** — legacy project support
+- **Style Dictionary** — format for cross-tool compatibility
+
+## Current State
+
+Built as a CLI tool for local development. The next iteration will add:
+- Figma plugin integration
+- Visual token editor
+- Version diff and changelog generation
+- Live preview across frameworks

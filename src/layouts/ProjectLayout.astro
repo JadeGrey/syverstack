@@ -1,0 +1,194 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+---
+
+<BaseLayout title={`${data.title} — Sami Syverson`} description={data.description} navVariant="inner">
+  <article class="project-page">
+    <div class="container">
+      <header class="project-header stagger-item" style="--stagger-index: 0">
+        <a href="/projects" class="project-back">← All projects</a>
+        <p class="project-header-eyebrow">// PROJECT</p>
+        <h1 class="project-header-title">{data.icon ? `${data.icon} ` : ''}{data.title}</h1>
+        <p class="project-header-desc">{data.description}</p>
+        <div class="project-header-meta">
+          <span class="project-status" data-status={data.status}>
+            {data.status === 'live' ? '● Live' : data.status === 'wip' ? '◌ WIP' : '○ Archived'}
+          </span>
+          <div class="project-header-tech">
+            {data.tech.map(t => <span class="project-tech-tag">{t}</span>)}
+          </div>
+        </div>
+        <div class="project-header-links">
+          {data.liveUrl && <a href={data.liveUrl} class="btn btn-primary" target="_blank" rel="noopener">View live</a>}
+          {data.repoUrl && <a href={data.repoUrl} class="btn btn-ghost" target="_blank" rel="noopener">Source code</a>}
+        </div>
+      </header>
+
+      <div class="project-content stagger-item" style="--stagger-index: 1">
+        <slot />
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<script src="../scripts/staggerReveal.ts"></script>
+
+<style is:global>
+  .project-page {
+    padding-top: 8rem;
+    padding-bottom: var(--space-3xl);
+  }
+  .project-back {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-lg);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .project-back:hover {
+    color: var(--color-accent-primary);
+    text-shadow: 0 0 8px var(--color-accent-glow);
+  }
+  .project-header-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--type-sm);
+    color: var(--color-accent-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: var(--space-sm);
+  }
+  .project-header-title {
+    font-family: var(--font-display);
+    font-weight: var(--weight-heading);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-display);
+    text-shadow: 0 0 30px var(--color-accent-glow);
+    margin-bottom: var(--space-md);
+  }
+  .project-header-desc {
+    font-size: var(--type-lg);
+    color: var(--color-text-body);
+    line-height: var(--line-height-relaxed);
+    max-width: 650px;
+    margin-bottom: var(--space-lg);
+  }
+  .project-header-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+  }
+  .project-status {
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .project-status[data-status="live"] { color: var(--color-support-success); }
+  .project-status[data-status="wip"] { color: var(--color-support-warning); }
+  .project-status[data-status="archived"] { color: var(--color-text-muted); }
+  .project-header-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  .project-tech-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-accent-secondary);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 245, 255, 0.05);
+    border: 1px solid rgba(0, 245, 255, 0.15);
+  }
+  .project-header-links {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  /* Project content — MDX rendered */
+  .project-content {
+    max-width: 720px;
+    margin-top: var(--space-3xl);
+  }
+  .project-content h2 {
+    font-family: var(--font-display);
+    font-weight: var(--weight-subheading);
+    font-size: var(--type-2xl);
+    color: var(--color-text-display);
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-md);
+    text-shadow: 0 0 8px rgba(255, 59, 140, 0.2);
+  }
+  .project-content h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--type-xl);
+    color: var(--color-accent-secondary);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+  }
+  .project-content p {
+    font-size: var(--type-base);
+    color: var(--color-text-body);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-md);
+  }
+  .project-content ul {
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-lg);
+  }
+  .project-content li {
+    font-size: var(--type-base);
+    color: var(--color-text-body);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-xs);
+  }
+  .project-content code {
+    font-family: var(--font-mono);
+    font-size: var(--type-sm);
+    background: var(--color-surface-interactive);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-subtle);
+  }
+  .project-content pre {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    overflow-x: auto;
+    margin-bottom: var(--space-lg);
+  }
+  .project-content pre code {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .project-content pre code::before {
+    content: '// ';
+    opacity: 0.4;
+  }
+  .project-content a {
+    color: var(--color-accent-secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .project-content a:hover {
+    color: var(--color-accent-primary);
+  }
+</style>

@@ -1,0 +1,53 @@
+---
+title: SyverClaw
+description: AI coding assistant framework — agent-driven development with sub-agent orchestration and autonomous code generation.
+icon: 🤖
+tech:
+  - Claude API
+  - Agent Systems
+  - TypeScript
+  - MCP
+  - OpenClaw
+featured: true
+order: 1
+liveUrl: https://github.com/JadeGrey
+---
+
+## What is SyverClaw?
+
+SyverClaw is a coding assistant framework that takes agent-driven development seriously. Instead of treating AI as a fancy autocomplete, SyverClaw orchestrates multiple sub-agents, each with focused responsibilities, to build, test, and ship code autonomously.
+
+## Core Concepts
+
+### Sub-Agent Orchestration
+SyverClaw can spawn child agent sessions for parallel work — one agent writes tests while another implements features. Results merge back into a unified codebase.
+
+### Autonomous Code Generation
+Given a high-level spec, SyverClaw can:
+- Plan the implementation
+- Generate code files
+- Run tests
+- Fix failures
+- Commit working code
+
+### MCP Protocol
+Built on the Model Context Protocol, SyverClaw connects to tools and data sources through a standardized interface. This means the same agent loop works across different environments.
+
+## Technical Architecture
+
+```
+syverclaw/
+├── agent-core/        → Main agent loop, context management
+├── sub-agent/         → Child session spawner + orchestrator
+├── tool-registry/     → MCP tool definitions
+├── workspace/         → File system abstraction
+└── deploy/            → CI/CD integration
+```
+
+## What I Learned
+
+Building SyverClaw taught me the most about **agent reliability**:
+- Context window management is the single hardest problem
+- Deterministic tool calling beats free-form generation for production code
+- Sub-agents need clear boundaries or they'll step on each other
+- The best AI code comes from tight loops: generate → test → fix → repeat

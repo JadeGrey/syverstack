@@ -1,0 +1,78 @@
+---
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <p class="footer-text">
+        Sami Syverson<span class="footer-glow" aria-hidden="true"></span>&copy; 2026
+      </p>
+      <p class="footer-tag" id="footer-tag">
+        "If Sami don't trust the pull req', I'm gon' purge it."
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const tag = document.getElementById('footer-tag');
+  if (tag && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        tag.classList.add('revealed');
+        observer.disconnect();
+      }
+    }, { threshold: 0.3 });
+    observer.observe(tag);
+  } else if (tag) {
+    tag.classList.add('revealed');
+  }
+</script>
+
+<style is:global>
+  .footer {
+    border-top: 1px solid var(--color-border-subtle);
+    padding: 3rem 0;
+    position: relative;
+    z-index: 1;
+  }
+  .footer-inner {
+    text-align: center;
+  }
+  .footer-text {
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+  }
+  .footer-glow {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent-primary);
+    box-shadow: 0 0 8px var(--color-accent-glow);
+    margin: 0 6px;
+    vertical-align: middle;
+    animation: pulse 2s var(--ease-spring) infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.8); }
+  }
+  .footer-tag {
+    font-family: var(--font-mono);
+    font-style: italic;
+    font-size: var(--type-xs);
+    color: var(--color-text-muted);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity var(--duration-slow) var(--ease-base),
+                transform var(--duration-slow) var(--ease-base);
+    margin-top: var(--space-sm);
+  }
+  .footer-tag.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>

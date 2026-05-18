@@ -1,0 +1,343 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Sami Syverson — Bio" description="Origin story, tech stack, and contact for Sami Syverson. AI engineer, builder, creator." navVariant="inner">
+  <!-- ====== MINI HERO ====== -->
+  <section class="bio-hero">
+    <div class="container">
+      <div class="bio-hero-content">
+        <p class="bio-hero-eyebrow stagger-item" style="--stagger-index: 0">// THE STORY</p>
+        <h1 class="bio-hero-name stagger-item" style="--stagger-index: 1">Sami Syverson</h1>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== ORIGIN STORY ====== -->
+  <section id="origin">
+    <div class="container">
+      <div class="section-header stagger-item" style="--stagger-index: 0">
+        <p class="section-number">ORIGIN</p>
+        <h2 class="section-title">How I got here</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item stagger-item" style="--stagger-index: 0">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-era">5th Grade</span>
+            <p>Started writing bookmarklet cheats on school Chromebooks during class. First taste of "I can make the computer do what I want." That spark never went out.</p>
+          </div>
+        </div>
+        <div class="timeline-item stagger-item" style="--stagger-index: 1">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-era">5th Grade — Later</span>
+            <p>Got my first project tablet. Immediately dove into bootloaders — rooting devices, custom ROMs, understanding how systems boot. Hardware meets software.</p>
+          </div>
+        </div>
+        <div class="timeline-item stagger-item" style="--stagger-index: 2">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-era">Middle School</span>
+            <p>Found my rhythm on <a href="https://replit.com" target="_blank" rel="noopener">repl.it</a>. Built Discord bots for servers I was in. The social side of coding — making things people actually used in real time.</p>
+          </div>
+        </div>
+        <div class="timeline-item stagger-item" style="--stagger-index: 3">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-era">High School</span>
+            <p>Went all-in on code. Python became second nature over years of practice. Coded through the old AI era — when AI wasn't good at coding yet. Built the fundamentals the hard way.</p>
+          </div>
+        </div>
+        <div class="timeline-item stagger-item" style="--stagger-index: 4">
+          <div class="timeline-dot timeline-dot--present"></div>
+          <div class="timeline-content">
+            <span class="timeline-era timeline-era--present">Present</span>
+            <p>AI pivot. Coding agents got good — and I realized AI isn't a gimmick, it's the most powerful tool I've ever used. Integrated AI into every workflow. Built YokaiBot, SyverClaw, and this portfolio entirely with AI collaboration. This is the frontier.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== TECH DEEP DIVE ====== -->
+  <section id="stack">
+    <div class="container">
+      <div class="section-header stagger-item" style="--stagger-index: 0">
+        <p class="section-number">STACK</p>
+        <h2 class="section-title">What I work with</h2>
+        <div class="section-line"></div>
+      </div>
+      <div data-stagger-group="stack" class="stack-grid">
+        <div class="stack-domain stagger-item" style="--stagger-index: 0">
+          <h3 class="stack-domain-title">Languages</h3>
+          <p class="stack-domain-desc">Python for AI/data scripting and automation. Rust for systems-level performance and type safety. TypeScript for frontend and tooling. SQL for everything data.</p>
+        </div>
+        <div class="stack-domain stagger-item" style="--stagger-index: 1">
+          <h3 class="stack-domain-title">AI & Data</h3>
+          <p class="stack-domain-desc">LLM integration via API (Claude, GPT, local models). pgvector for semantic search and similarity. Embeddings, RAG pipelines, and agent orchestration. Building systems that use AI, not just call APIs.</p>
+        </div>
+        <div class="stack-domain stagger-item" style="--stagger-index: 2">
+          <h3 class="stack-domain-title">Systems</h3>
+          <p class="stack-domain-desc">PostgreSQL for persistent data. Linux daily driver. Docker for reproducible environments. CI/CD pipelines that actually catch things. Discord API for real-time interaction design.</p>
+        </div>
+        <div class="stack-domain stagger-item" style="--stagger-index: 3">
+          <h3 class="stack-domain-title">Frontend</h3>
+          <p class="stack-domain-desc">HTML/CSS/JS first — no framework tax for simple things. React when interactivity demands it. Astro for content sites. CSS custom properties for design systems. Accessible by default.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== CONTACT ====== -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-header stagger-item" style="--stagger-index: 0">
+        <p class="section-number">CONTACT</p>
+        <h2 class="section-title">Get in touch</h2>
+        <div class="section-line"></div>
+      </div>
+      <div data-stagger-group="contact" class="contact-grid">
+        <a href="https://github.com/JadeGrey" target="_blank" rel="noopener" class="contact-card stagger-item glow-hover" style="--stagger-index: 0">
+          <span class="contact-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+            </svg>
+          </span>
+          <div class="contact-info">
+            <span class="contact-label">GitHub</span>
+            <span class="contact-handle">JadeGrey</span>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+        <a href="https://discord.com/users/1193767905049981069" target="_blank" rel="noopener" class="contact-card stagger-item glow-hover" style="--stagger-index: 1">
+          <span class="contact-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="M8 7.5c-1.5 0-2.5.5-3 1.5C4.5 10.5 4 13 4 17c3 2 5 2 8 2s5 0 8-2c0-4-.5-6.5-1-8-.5-1-1.5-1.5-3-1.5"/>
+              <circle cx="9" cy="12" r="1"/>
+              <circle cx="15" cy="12" r="1"/>
+              <path d="M12 17v-2"/>
+            </svg>
+          </span>
+          <div class="contact-info">
+            <span class="contact-label">Discord</span>
+            <span class="contact-handle">Jade.py</span>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+        <a href="mailto:samisyverson@syverstack.com" class="contact-card stagger-item glow-hover" style="--stagger-index: 2">
+          <span class="contact-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="M22 4l-10 8L2 4"/>
+            </svg>
+          </span>
+          <div class="contact-info">
+            <span class="contact-label">Email</span>
+            <span class="contact-handle">samisyverson@syverstack.com</span>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+      </div>
+      <div class="contact-cta stagger-item" style="--stagger-index: 3">
+        <a href="mailto:samisyverson@syverstack.com" class="btn btn-primary">Send an email</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script src="../scripts/staggerReveal.ts"></script>
+
+<style is:global>
+  /* ===== BIO HERO ===== */
+  .bio-hero {
+    min-height: 40vh;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: var(--space-3xl);
+    padding-top: 8rem;
+    position: relative;
+    z-index: 1;
+  }
+  .bio-hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--type-sm);
+    color: var(--color-accent-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: var(--space-sm);
+  }
+  .bio-hero-name {
+    font-family: var(--font-display);
+    font-weight: var(--weight-heading);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-display);
+    text-shadow: 0 0 30px var(--color-accent-glow);
+  }
+
+  /* ===== TIMELINE ===== */
+  #origin {
+    padding: var(--space-3xl) 0;
+  }
+  .timeline {
+    position: relative;
+    padding-left: var(--space-xl);
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--color-accent-secondary), var(--color-accent-primary), var(--color-accent-secondary));
+    opacity: 0.3;
+  }
+  .timeline-item {
+    display: flex;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    position: relative;
+  }
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+  .timeline-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-accent-secondary);
+    box-shadow: 0 0 8px rgba(0, 245, 255, 0.4);
+    flex-shrink: 0;
+    margin-top: 4px;
+    margin-left: -19px;
+  }
+  .timeline-dot--present {
+    background: var(--color-accent-primary);
+    box-shadow: 0 0 12px var(--color-accent-glow);
+    animation: pulse 2s var(--ease-spring) infinite;
+  }
+  .timeline-era {
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    color: var(--color-accent-secondary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: var(--space-xs);
+  }
+  .timeline-era--present {
+    color: var(--color-accent-primary);
+  }
+  .timeline-content p {
+    font-size: var(--type-base);
+    color: var(--color-text-body);
+    line-height: var(--line-height-relaxed);
+    max-width: 600px;
+  }
+
+  /* ===== STACK ===== */
+  #stack {
+    padding: var(--space-3xl) 0;
+  }
+  .stack-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+  }
+  .stack-domain {
+    border-left: 2px solid var(--color-border-subtle);
+    padding-left: var(--space-lg);
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+  .stack-domain:hover {
+    border-left-color: var(--color-accent-primary);
+  }
+  .stack-domain-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--type-lg);
+    color: var(--color-accent-secondary);
+    margin-bottom: var(--space-sm);
+    text-shadow: 0 0 8px rgba(0, 245, 255, 0.15);
+  }
+  .stack-domain-desc {
+    font-size: var(--type-sm);
+    color: var(--color-text-body);
+    line-height: var(--line-height-relaxed);
+    max-width: 480px;
+  }
+
+  /* ===== CONTACT ===== */
+  #contact {
+    padding: var(--space-3xl) 0;
+  }
+  .contact-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    max-width: 500px;
+  }
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--duration-fast) var(--ease-out);
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-card:hover {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 16px var(--color-accent-glow);
+    transform: translateX(4px);
+    text-shadow: none;
+  }
+  .contact-icon {
+    color: var(--color-accent-primary);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .contact-label {
+    font-family: var(--font-mono);
+    font-size: var(--type-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .contact-handle {
+    font-family: var(--font-body);
+    font-weight: var(--weight-strong);
+    color: var(--color-text-body);
+  }
+  .contact-arrow {
+    color: var(--color-text-muted);
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+  .contact-card:hover .contact-arrow {
+    transform: translateX(4px);
+    color: var(--color-accent-primary);
+  }
+  .contact-cta {
+    margin-top: var(--space-xl);
+  }
+
+  @media (max-width: 768px) {
+    .stack-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .timeline { padding-left: var(--space-lg); }
+  }
+</style>

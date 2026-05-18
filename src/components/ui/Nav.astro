@@ -1,0 +1,78 @@
+---
+export interface Props {
+  variant?: 'home' | 'inner';
+}
+
+const { variant = 'home' } = Astro.props;
+const rightLink = variant === 'home' ? { href: '/bio', label: 'BIO →' } : { href: '/', label: '← HOME' };
+---
+
+<nav class="nav" role="navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" aria-label="Home">
+      <svg width="34" height="34" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="overflow:visible" aria-hidden="true">
+        <defs>
+          <linearGradient id="nav-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff3b8c"/>
+            <stop offset="100%" stop-color="#00f5ff"/>
+          </linearGradient>
+          <filter id="nav-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+          </filter>
+        </defs>
+        <rect x="4" y="4" width="56" height="56" rx="10" fill="#05070d"/>
+        <rect x="4" y="4" width="56" height="56" rx="10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <text x="32" y="46" font-family="'Orbitron','Exo 2',sans-serif" font-weight="900" font-size="34" fill="url(#nav-grad)" text-anchor="middle" letter-spacing="-1" filter="url(#nav-glow)">SV</text>
+      </svg>
+    </a>
+    <a href={rightLink.href} class="nav-link">{rightLink.label}</a>
+  </div>
+</nav>
+
+<style is:global>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 1.5rem 0;
+    background: rgba(5, 7, 13, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    filter: drop-shadow(0 0 6px var(--color-accent-glow));
+    transition: filter var(--duration-fast) var(--ease-out);
+  }
+  .nav-logo:hover {
+    filter: drop-shadow(0 0 14px var(--color-accent-glow));
+  }
+  .nav-link {
+    font-family: var(--font-body);
+    font-weight: var(--weight-label);
+    font-size: var(--type-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out),
+                text-shadow var(--duration-fast) var(--ease-out);
+  }
+  .nav-link:hover {
+    color: var(--color-accent-secondary);
+    text-shadow: 0 0 8px rgba(0, 245, 255, 0.5);
+  }
+</style>

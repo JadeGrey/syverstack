@@ -1,0 +1,61 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404 — Not Found" description="Page not found. Maybe it drifted into cyberspace.">
+  <section class="not-found">
+    <div class="container">
+      <div class="not-found-content">
+        <p class="not-found-eyebrow">// ERROR 404</p>
+        <h1 class="not-found-title">Lost in</h1>
+        <h1 class="not-found-title not-found-title--accent">cyberspace</h1>
+        <p class="not-found-desc">The page you're looking for doesn't exist. Maybe it never did. Maybe it was deleted by a rogue AI. Either way, let's get you back.</p>
+        <div class="not-found-actions">
+          <a href="/" class="btn btn-primary">Go home</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .not-found {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .not-found-content {
+    max-width: 500px;
+  }
+  .not-found-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--type-sm);
+    color: var(--color-support-error);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: var(--space-sm);
+    text-shadow: 0 0 8px rgba(255, 23, 68, 0.5);
+  }
+  .not-found-title {
+    font-family: var(--font-display);
+    font-weight: var(--weight-heading);
+    font-size: clamp(3rem, 8vw, 5rem);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-display);
+    text-shadow: 0 0 30px var(--color-accent-glow);
+  }
+  .not-found-title--accent {
+    color: var(--color-accent-primary);
+    text-shadow: 0 0 40px var(--color-accent-glow),
+                 0 0 80px rgba(255, 59, 140, 0.2);
+    margin-bottom: var(--space-lg);
+  }
+  .not-found-desc {
+    font-size: var(--type-base);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-xl);
+  }
+</style>
