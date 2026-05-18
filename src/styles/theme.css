@@ -261,13 +261,15 @@ body::after {
   margin-top: var(--space-lg);
 }
 
-/* Section-to-section seamless transition */
+/* Section-to-section seamless transition + scroll snap */
 section[id], .bio-hero, .project-page, .projects-page {
   scroll-margin-top: 5rem;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
 }
 
 @media (prefers-reduced-motion) {
-  .stagger-item { opacity: 1; transform: none; }
+  .stagger-item { opacity: 1; filter: none; text-shadow: none; }
 }
 
 /* Hero background blooms */

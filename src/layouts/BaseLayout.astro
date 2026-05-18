@@ -47,6 +47,8 @@ const { title = 'Sami Syverson — AI Engineer', description = 'AI engineer port
   .hero {
     position: relative;
     z-index: 1;
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
   }
 
   section[id] {
@@ -54,11 +56,7 @@ const { title = 'Sami Syverson — AI Engineer', description = 'AI engineer port
     z-index: 1;
   }
 
-  /* Stagger items that aren't revealed yet start hidden */
-  .stagger-item:not(.revealed) {
-    opacity: 0;
-    transform: translateY(24px);
-  }
+
 
   @media (prefers-reduced-motion: reduce) {
     .webgl-canvas, #touch-heat-canvas {
