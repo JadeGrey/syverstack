@@ -16,7 +16,6 @@
   }
 
   const THRESHOLD = 0.15;
-  const DELAY_MS = 60;
   const REVEAL_CLASS = 'revealed';
   const GRID_SELECTOR = '.stagger-grid';
   const ITEM_SELECTOR = '.stagger-item';
@@ -58,16 +57,16 @@
       items.forEach(item => indexedSet.add(item));
     }
 
-    // 2. Index remaining standalone items (not inside any grid)
-    const allStandalone = document.querySelectorAll<HTMLElement>(ITEM_SELECTOR);
-    const standalone = Array.from(allStandalone).filter(el => !indexedSet.has(el));
-    standalone.forEach((el, i) => {
-      el.style.setProperty('--stagger-index', String(i));
+    // 2. Standalone items (not inside any grid) get index 0 → immediate reveal
+    document.querySelectorAll<HTMLElement>(ITEM_SELECTOR).forEach(el => {
+      if (!indexedSet.has(el)) {
+        el.style.setProperty('--stagger-index', '0');
+      }
     });
 
     // 3. Observe all items
     const obs = getObserver();
-    allStandalone.forEach(item => obs.observe(item));
+    document.querySelectorAll<HTMLElement>(ITEM_SELECTOR).forEach(item => obs.observe(item));
   }
 
   if (document.readyState === 'loading') {
