@@ -291,3 +291,16 @@ section[id], .bio-hero, .project-page, .projects-page {
   pointer-events: none;
   z-index: -1;
 }
+
+/* Typewriter cursor blink */
+.typewriter-cursor {
+  display: inline;
+  border-left: 3px solid var(--color-accent-primary);
+  margin-left: 4px;
+  box-shadow: 0 0 8px var(--color-accent-glow);
+  animation: blink 1s step-end infinite;
+  vertical-align: baseline;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
