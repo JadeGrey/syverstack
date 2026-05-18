@@ -298,9 +298,9 @@ section[id], .bio-hero, .project-page, .projects-page {
   border-left: 3px solid var(--color-accent-primary);
   margin-left: 4px;
   box-shadow: 0 0 8px var(--color-accent-glow);
-  animation: blink 1s step-end infinite;
+  animation: typewriter-blink 1s step-end infinite;
   vertical-align: baseline;
 }
-@keyframes blink {
+@keyframes typewriter-blink {
   50% { opacity: 0; }
 }

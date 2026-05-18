@@ -59,9 +59,29 @@
     if (el) run(el);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
-  } else {
+  let hasRun = false;
+
+  function safeInit() {
+    if (hasRun) return;
+    hasRun = true;
     init();
+  }
+
+  // Expose refresh for Astro view transitions (resets so it can re-run)
+  (window as any).__typewriter = {
+    refresh() {
+      hasRun = false;
+      init();
+    }
+  };
+
+  document.addEventListener('astro:page-load', () => {
+    (window as any).__typewriter?.refresh();
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', safeInit, { once: true });
+  } else {
+    safeInit();
   }
 })();
