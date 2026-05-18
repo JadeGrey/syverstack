@@ -4,7 +4,7 @@
 <footer class="footer">
   <div class="container">
     <div class="footer-inner">
-      <p class="footer-text">&copy; 2026 Sami Syverson</p>
+      <p class="footer-text">&copy; 2026 <span class="footer-dot"></span> Sami Syverson</p>
       <p class="footer-tag" id="footer-tag">
         "If Sami don't trust the pull req', I'm gon' purge it."
       </p>
@@ -40,6 +40,21 @@
     font-size: var(--type-xs);
     color: var(--color-text-muted);
     letter-spacing: 0.05em;
+  }
+  .footer-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent-primary);
+    box-shadow: 0 0 6px var(--color-accent-glow);
+    margin: 0 4px;
+    vertical-align: middle;
+    animation: footer-pulse 2s ease-in-out infinite;
+  }
+  @keyframes footer-pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.6); }
   }
   .footer-tag {
     font-family: var(--font-mono);

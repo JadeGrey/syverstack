@@ -11,8 +11,6 @@ interface SceneState {
   targetMouse: THREE.Vector2;
   scroll: number;
   scrollVelocity: number;
-  section: number;
-  sectionTransition: number;
   objects: THREE.Mesh[];
   clock: THREE.Clock;
   running: boolean;
@@ -24,32 +22,6 @@ let state: SceneState | null = null;
 
 function getWebGLCanvas(): HTMLCanvasElement | null {
   return document.getElementById('webgl-canvas') as HTMLCanvasElement | null;
-}
-
-/* ── Section boundary cache ── */
-let sectionBoundaries: { top: number; bottom: number; center: number; idx: number }[] = [];
-let sectionScrollMargin = 80; // nav + padding
-
-function cacheSectionBoundaries() {
-  const els = document.querySelectorAll<HTMLElement>('.hero, section[id], .bio-hero, .project-page, .projects-page');
-  sectionBoundaries = [];
-  els.forEach((el, idx) => {
-    const rect = el.getBoundingClientRect();
-    const top = window.scrollY + rect.top;
-    const bottom = top + rect.height;
-    sectionBoundaries.push({ top, bottom, center: (top + bottom) / 2, idx });
-  });
-}
-
-function getCurrentSection(): number {
-  if (!sectionBoundaries.length) return 0;
-  const viewportCenter = window.scrollY + window.innerHeight / 2;
-  let best = 0, bestDist = Infinity;
-  for (let i = 0; i < sectionBoundaries.length; i++) {
-    const dist = Math.abs(viewportCenter - sectionBoundaries[i].center);
-    if (dist < bestDist) { bestDist = dist; best = i; }
-  }
-  return best / Math.max(sectionBoundaries.length - 1, 1);
 }
 
 export function initScene(): void {
@@ -80,8 +52,7 @@ export function initScene(): void {
     uTime: { value: 0 },
     uScroll: { value: 0 },
     uScrollVelocity: { value: 0 },
-    uSection: { value: 0 },
-    uSectionTransition: { value: 0 },
+    uIntensity: { value: 0.15 },
     uOpacity: { value: 1.0 },
   };
 
@@ -102,7 +73,6 @@ export function initScene(): void {
   scene.add(objectGroup);
 
   const objects: THREE.Mesh[] = [];
-
 
   // Floating geometries
   const colors = [new THREE.Color('#00f5ff'), new THREE.Color('#ff3b8c'), new THREE.Color('#ff3b8c'), new THREE.Color('#00f5ff')];
@@ -151,10 +121,7 @@ export function initScene(): void {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     uniforms.uResolution.value.set(w, h);
   }
-  window.addEventListener('resize', () => {
-    resize();
-    cacheSectionBoundaries(); // recalculate on resize
-  });
+  window.addEventListener('resize', resize);
   resize();
 
   // Mouse
@@ -174,43 +141,11 @@ export function initScene(): void {
   window.addEventListener('mousemove', onMouse);
   window.addEventListener('touchmove', onTouch, { passive: true });
 
-  // Scroll — velocity tracking + section transition
+  // Scroll — velocity-only tracking (no sections)
   let scroll = 0;
   let scrollVelocity = 0;
-  let section = 0;
-  let sectionTransition = 0;
   let lastScrollY = window.scrollY;
   let velocitySmooth = 0;
-  let transitionSmooth = 0;
-
-  function getSectionTransition(): number {
-    if (sectionBoundaries.length < 2) return 0;
-    const scrollPos = window.scrollY;
-    const margin = sectionScrollMargin;
-
-    // Build snap points. Clamp the first to 0 (scroll can't be negative).
-    const snaps = sectionBoundaries.map((s, i) =>
-      i === 0 ? Math.max(0, s.top - margin) : s.top - margin
-    );
-
-    // Find the nearest snap point above and below current scroll
-    let snapAbove = -Infinity;
-    let snapBelow = Infinity;
-    for (const snap of snaps) {
-      if (snap <= scrollPos && snap > snapAbove) snapAbove = snap;
-      if (snap > scrollPos && snap < snapBelow) snapBelow = snap;
-    }
-
-    // At first section (no above) or last section (no below) → 0 transition
-    if (snapAbove === -Infinity || snapBelow === Infinity) return 0;
-
-    const range = snapBelow - snapAbove;
-    if (range <= 0) return 0;
-    return Math.min(1, (scrollPos - snapAbove) / range);
-  }
-
-  // Cache boundaries on init + resize
-  cacheSectionBoundaries();
 
   function onScroll() {
     const current = window.scrollY;
@@ -218,8 +153,6 @@ export function initScene(): void {
     const delta = Math.abs(current - lastScrollY);
     scrollVelocity = delta / 16;
     lastScrollY = current;
-    section = getCurrentSection();
-    sectionTransition = getSectionTransition();
   }
   window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -236,16 +169,17 @@ export function initScene(): void {
     mouse.x += (targetMouse.x - mouse.x) * 0.05;
     mouse.y += (targetMouse.y - mouse.y) * 0.05;
 
-    // Smooth scroll velocity + section transition
+    // Velocity smoothing & decay
     velocitySmooth += (scrollVelocity - velocitySmooth) * 0.08;
     scrollVelocity *= 0.85;
-    transitionSmooth += (sectionTransition - transitionSmooth) * 0.05;
+
+    // Intensity: baseline 0.15 + velocity contribution (peaks ~0.8 on fast scroll, decays to baseline)
+    const intensity = 0.15 + Math.min(velocitySmooth * 0.7, 0.65);
 
     uniforms.uTime.value = elapsed;
     uniforms.uScroll.value = scroll;
     uniforms.uScrollVelocity.value = Math.min(velocitySmooth, 2.0);
-    uniforms.uSection.value = section;
-    uniforms.uSectionTransition.value = 0.15 + Math.min(transitionSmooth, 0.85); // baseline 0.15 = subtle background glow
+    uniforms.uIntensity.value = intensity;
     uniforms.uMouse.value.set(mouse.x, mouse.y);
 
     // Animate 3D objects with scroll reactivity
@@ -269,7 +203,7 @@ export function initScene(): void {
       obj.position.z = Math.sin(elapsed * 0.5 + data.floatOffset) * 0.05
         + velocitySmooth * 0.02;
 
-      // Mouse repulsion with restoring spring (prevents drift off-screen)
+      // Mouse repulsion with restoring spring
       const dx = mouse.x - (obj.position.x * 0.5 + 0.5);
       const dy = mouse.y - (obj.position.y * 0.5 + 0.5);
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -278,7 +212,7 @@ export function initScene(): void {
         obj.position.x -= dx * push;
         obj.position.y -= dy * push;
       }
-      // Gentle spring: gradually return toward the floating path
+      // Gentle spring back to floating path
       const idealX = data.basePos.x
         + Math.sin(elapsed * data.floatSpeed + data.floatOffset) * data.floatAmp;
       const idealY = data.basePos.y
@@ -292,15 +226,14 @@ export function initScene(): void {
       obj.material.opacity = 0.1 + fadeVal * 0.55;
     });
 
-
     renderer.render(scene, camera);
     state!.rafId = requestAnimationFrame(animate);
   }
 
   state = {
     renderer, scene, camera, shaderMaterial, mesh,
-    mouse, targetMouse, scroll, scrollVelocity, section,
-    sectionTransition, objects, clock, running, rafId: 0, lastScrollY,
+    mouse, targetMouse, scroll, scrollVelocity,
+    objects, clock, running, rafId: 0, lastScrollY,
   };
 
   animate();
