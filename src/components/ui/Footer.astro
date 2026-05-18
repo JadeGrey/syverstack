@@ -4,9 +4,14 @@
 <footer class="footer">
   <div class="container">
     <div class="footer-inner">
-      <p class="footer-text">&copy; 2026 <span class="footer-dot"></span> Sami Syverson</p>
+      <p class="footer-text">
+        <span class="footer-copyright">&copy; 2026</span>
+        <span class="footer-separator" aria-hidden="true">//</span>
+        <span class="footer-author">Sami Syverson</span>
+      </p>
       <p class="footer-tag" id="footer-tag">
-        "If Sami don't trust the pull req', I'm gon' purge it."
+        <span class="footer-tag-text">"If Sami don't trust the pull req', I'm gon' purge it."</span>
+        <span class="footer-tag-label">PROD</span>
       </p>
     </div>
   </div>
@@ -18,10 +23,10 @@
     tag.style.opacity = '1';
     setTimeout(() => {
       tag.style.transition = 'opacity 0.8s ease';
-      tag.style.opacity = '0';
+      tag.style.opacity = '0.65';
     }, 3000);
   } else if (tag) {
-    tag.style.opacity = '0.4';
+    tag.style.opacity = '0.7';
   }
 </script>
 
@@ -40,21 +45,17 @@
     font-size: var(--type-xs);
     color: var(--color-text-muted);
     letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
   }
-  .footer-dot {
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--color-accent-primary);
-    box-shadow: 0 0 6px var(--color-accent-glow);
-    margin: 0 4px;
-    vertical-align: middle;
-    animation: footer-pulse 2s ease-in-out infinite;
+  .footer-separator {
+    opacity: 0.2;
+    font-size: 10px;
   }
-  @keyframes footer-pulse {
-    0%, 100% { opacity: 0.3; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.6); }
+  .footer-author {
+    color: var(--color-text-body);
   }
   .footer-tag {
     font-family: var(--font-mono);
@@ -63,5 +64,23 @@
     color: var(--color-text-muted);
     opacity: 1;
     margin-top: var(--space-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+  }
+  .footer-tag-text {
+    font-style: italic;
+  }
+  .footer-tag-label {
+    font-style: normal;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: 1px 6px;
+    border: 1px solid rgba(255, 59, 140, 0.25);
+    border-radius: var(--radius-sm);
+    color: var(--color-accent-primary);
+    opacity: 0.6;
   }
 </style>
