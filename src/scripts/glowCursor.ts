@@ -1,39 +1,275 @@
-export function initGlowCursor(): void {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if ('ontouchstart' in window) return;
+/**
+ * glowCursor.ts — Cursor replacement + trail + mobile heat signature
+ *
+ * Desktop: replaces system cursor with magenta dot + glow ring
+ * Mobile: heat signature trail via canvas overlay
+ */
 
-  const cursor = document.createElement('div');
-  cursor.className = 'glow-cursor';
-  document.body.appendChild(cursor);
-
-  let x = 0, y = 0;
-  let tx = 0, ty = 0;
-
-  function onMove(e: MouseEvent) {
-    tx = e.clientX;
-    ty = e.clientY;
-  }
-
-  function onHover(el: HTMLElement) {
-    el.addEventListener('mouseenter', () => cursor.classList.add('glow-cursor--active'));
-    el.addEventListener('mouseleave', () => cursor.classList.remove('glow-cursor--active'));
-  }
-
-  document.querySelectorAll('a, button, .btn, .project-card, .skill-category, .contact-card').forEach(onHover);
-
-  function animate() {
-    x += (tx - x) * 0.15;
-    y += (ty - y) * 0.15;
-    cursor.style.transform = `translate(${x - 6}px, ${y - 6}px)`;
-    requestAnimationFrame(animate);
-  }
-
-  window.addEventListener('mousemove', onMove, { passive: true });
-  animate();
+interface TrailPoint {
+  x: number; y: number; opacity: number; size: number;
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initGlowCursor);
-} else {
-  initGlowCursor();
+interface HeatPoint {
+  x: number; y: number; heat: number;
+  opacity: number; age: number; maxAge: number;
 }
+
+(function () {
+  'use strict';
+
+  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ── Mobile heat signature ── */
+  if (isTouchDevice || prefersReducedMotion.matches) {
+    if (prefersReducedMotion.matches) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'touch-heat-canvas';
+    Object.assign(canvas.style, {
+      position: 'fixed', top: '0', left: '0',
+      width: '100vw', height: '100vh',
+      zIndex: '99998', pointerEvents: 'none', display: 'block',
+    });
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d')!;
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const heatPoints: HeatPoint[] = [];
+    let heatValue = 0;
+    let heatTimer: ReturnType<typeof setInterval> | null = null;
+    let isTouching = false;
+
+    window.addEventListener('touchstart', (e: TouchEvent) => {
+      isTouching = true;
+      heatValue = 0;
+      const t = e.touches[0];
+      heatPoints.push({ x: t.clientX, y: t.clientY, heat: 0, opacity: 0.5, age: 0, maxAge: 40 });
+      heatTimer = setInterval(() => {
+        heatValue = Math.min(1, heatValue + 0.04);
+      }, 50);
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e: TouchEvent) => {
+      if (!isTouching) return;
+      const t = e.touches[0];
+      heatPoints.push({
+        x: t.clientX, y: t.clientY, heat: heatValue,
+        opacity: 0.5 + heatValue * 0.5, age: 0,
+        maxAge: 40 + Math.round(heatValue * 60),
+      });
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      isTouching = false;
+      heatValue = 0;
+      if (heatTimer) { clearInterval(heatTimer); heatTimer = null; }
+    }, { passive: true });
+
+    window.addEventListener('touchcancel', () => {
+      isTouching = false;
+      heatValue = 0;
+      if (heatTimer) { clearInterval(heatTimer); heatTimer = null; }
+    }, { passive: true });
+
+    function drawHeat() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = heatPoints.length - 1; i >= 0; i--) {
+        const p = heatPoints[i];
+        p.age++;
+        p.opacity *= 0.97;
+        if (p.age > p.maxAge || p.opacity < 0.01) { heatPoints.splice(i, 1); continue; }
+
+        const radius = 20 + p.heat * 50;
+        const alpha = p.opacity * (0.3 + p.heat * 0.5);
+
+        let r = 0, g = 0, b = 0;
+        if (p.heat < 0.3) {
+          const t = p.heat / 0.3;
+          r = Math.round(t * 100);
+          g = Math.round(245 - t * 100);
+          b = 255;
+        } else if (p.heat < 0.6) {
+          const t = (p.heat - 0.3) / 0.3;
+          r = 255;
+          g = Math.round(245 - t * 150);
+          b = Math.round(255 - t * 200);
+        } else {
+          const t = (p.heat - 0.6) / 0.4;
+          r = 255;
+          g = Math.round(95 + t * 160);
+          b = Math.round(55 + t * 200);
+        }
+
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius);
+        grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+        grad.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+      requestAnimationFrame(drawHeat);
+    }
+    drawHeat();
+    return;
+  }
+
+  /* ── Desktop: cursor replacement + trail ── */
+
+  // Build cursor DOM elements
+  const wrapper = document.createElement('div');
+  wrapper.className = 'nc-cursor';
+  Object.assign(wrapper.style, {
+    position: 'fixed', top: '0', left: '0', width: '0', height: '0',
+    pointerEvents: 'none', zIndex: '99999', willChange: 'transform',
+  });
+
+  const glow = document.createElement('div');
+  Object.assign(glow.style, {
+    position: 'absolute', width: '30px', height: '30px', borderRadius: '50%',
+    background: 'radial-gradient(circle, var(--color-accent-glow, rgba(255,59,140,0.6)) 0%, transparent 70%)',
+    transform: 'translate(-50%, -50%)', filter: 'blur(4px)',
+    transition: 'filter 300ms ease, background 300ms ease',
+  });
+
+  const dot = document.createElement('div');
+  Object.assign(dot.style, {
+    position: 'absolute', width: '12px', height: '12px', borderRadius: '50%',
+    background: 'var(--color-accent-primary, #ff3b8c)',
+    transform: 'translate(-50%, -50%)',
+    boxShadow: '0 0 6px var(--color-accent-glow)',
+    transition: 'transform 300ms ease',
+  });
+
+  glow.appendChild(dot);
+  wrapper.appendChild(glow);
+  document.body.appendChild(wrapper);
+  document.body.style.cursor = 'none';
+
+  // Trail canvas
+  const trailCanvas = document.createElement('canvas');
+  Object.assign(trailCanvas.style, {
+    position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
+    zIndex: '99998', pointerEvents: 'none', display: 'block',
+  });
+  document.body.appendChild(trailCanvas);
+  const tctx = trailCanvas.getContext('2d')!;
+
+  let tw = 0, th = 0;
+  function resizeTrail() {
+    const dpr = Math.min(window.devicePixelRatio, 2);
+    tw = window.innerWidth; th = window.innerHeight;
+    trailCanvas.width = tw * dpr;
+    trailCanvas.height = th * dpr;
+    tctx.scale(dpr, dpr);
+  }
+  resizeTrail();
+  window.addEventListener('resize', resizeTrail);
+
+  // State
+  let targetX = 0, targetY = 0;
+  let currentX = 0, currentY = 0;
+  let isHoveringInteractive = false;
+
+  const trailPoints: TrailPoint[] = [];
+  const MAX_TRAIL = 30;
+  const TRAIL_SPACING = 8;
+  let lastTX = 0, lastTY = 0, trailAccum = 0;
+
+  // Mouse handlers
+  document.addEventListener('mousemove', (e: MouseEvent) => {
+    targetX = e.clientX;
+    targetY = e.clientY;
+
+    const dx = e.clientX - lastTX;
+    const dy = e.clientY - lastTY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    trailAccum += dist;
+    if (trailAccum >= TRAIL_SPACING) {
+      trailAccum = 0;
+      trailPoints.push({ x: e.clientX, y: e.clientY, opacity: 0.5, size: 3 + Math.random() * 2 });
+      if (trailPoints.length > MAX_TRAIL) trailPoints.shift();
+    }
+    lastTX = e.clientX;
+    lastTY = e.clientY;
+  }, { passive: true });
+
+  document.addEventListener('mouseover', (e: MouseEvent) => {
+    const interactive = (e.target as HTMLElement).closest('a, button, [role="button"], input, select, textarea');
+    if (interactive && !isHoveringInteractive) {
+      isHoveringInteractive = true;
+      dot.style.transform = 'translate(-50%, -50%) scale(1.5)';
+      glow.style.filter = 'blur(8px)';
+      glow.style.background = 'radial-gradient(circle, var(--color-accent-glow, rgba(255,59,140,0.8)) 0%, transparent 60%)';
+    } else if (!interactive && isHoveringInteractive) {
+      isHoveringInteractive = false;
+      dot.style.transform = 'translate(-50%, -50%) scale(1)';
+      glow.style.filter = 'blur(4px)';
+      glow.style.background = 'radial-gradient(circle, var(--color-accent-glow, rgba(255,59,140,0.6)) 0%, transparent 70%)';
+    }
+  }, { passive: true });
+
+  document.addEventListener('mouseleave', () => {
+    if (isHoveringInteractive) {
+      isHoveringInteractive = false;
+      dot.style.transform = 'translate(-50%, -50%) scale(1)';
+      glow.style.filter = 'blur(4px)';
+      glow.style.background = 'radial-gradient(circle, var(--color-accent-glow, rgba(255,59,140,0.6)) 0%, transparent 70%)';
+    }
+  }, { passive: true });
+
+  // Animation loop
+  function animateCursor() {
+    currentX += (targetX - currentX) * 0.15;
+    currentY += (targetY - currentY) * 0.15;
+    wrapper.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+
+    tctx.clearRect(0, 0, tw, th);
+    for (let i = trailPoints.length - 1; i >= 0; i--) {
+      const p = trailPoints[i];
+      p.opacity -= 0.03;
+      p.size *= 0.97;
+      if (p.opacity <= 0) { trailPoints.splice(i, 1); continue; }
+
+      if (i > 0) {
+        const prev = trailPoints[i - 1];
+        tctx.beginPath();
+        tctx.moveTo(prev.x, prev.y);
+        tctx.lineTo(p.x, p.y);
+        tctx.strokeStyle = `rgba(255, 59, 140, ${p.opacity * 0.3})`;
+        tctx.lineWidth = p.size * 4;
+        tctx.lineCap = 'round';
+        tctx.stroke();
+
+        tctx.beginPath();
+        tctx.moveTo(prev.x, prev.y);
+        tctx.lineTo(p.x, p.y);
+        const ratio = i / trailPoints.length;
+        tctx.strokeStyle = ratio > 0.5
+          ? `rgba(0, 245, 255, ${p.opacity * 0.8})`
+          : `rgba(255, 59, 140, ${p.opacity * 0.8})`;
+        tctx.lineWidth = p.size;
+        tctx.lineCap = 'round';
+        tctx.stroke();
+      }
+    }
+
+    requestAnimationFrame(animateCursor);
+  }
+
+  // Seed cursor position
+  targetX = window.innerWidth / 2;
+  targetY = window.innerHeight / 2;
+  currentX = targetX;
+  currentY = targetY;
+  animateCursor();
+})();
