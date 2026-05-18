@@ -239,9 +239,9 @@ body::after {
   inset: 0;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-normal) var(--ease-base);
   z-index: 0;
-  background: radial-gradient(400px at 50% 50%, rgba(255, 59, 140, 0.06), transparent 60%);
+  background: var(--glow-bg, radial-gradient(400px at 50% 50%, rgba(255, 59, 140, 0.06), transparent 60%));
 }
 .glow-hover.is-glow-active::before {
   opacity: 1;
@@ -299,7 +299,7 @@ section[id], .bio-hero, .project-page, .projects-page {
   scroll-margin-top: 7rem;
 }
 
-@media (prefers-reduced-motion) {
+@media (prefers-reduced-motion: reduce) {
   .stagger-item { opacity: 1; filter: none; text-shadow: none; }
 }
 
