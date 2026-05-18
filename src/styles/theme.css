@@ -234,6 +234,16 @@ body::after {
   opacity: 1;
 }
 
+/* Section content alignment */
+.section-content {
+  display: flex;
+  flex-direction: column;
+}
+.section-content--center {
+  align-items: center;
+  text-align: center;
+}
+
 /* Section header pattern */
 .section-header {
   margin-bottom: var(--space-2xl);
@@ -269,6 +279,7 @@ body::after {
 section[id], .bio-hero, .project-page, .projects-page {
   scroll-snap-align: start;
   scroll-snap-stop: normal;
+  scroll-margin-top: 6rem;
 }
 
 @media (prefers-reduced-motion) {
