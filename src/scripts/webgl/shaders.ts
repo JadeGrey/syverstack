@@ -150,8 +150,7 @@ void main() {
 
   // ── Mouse interaction ──
   float dist = length(uv - uMouse);
-  float mouseGlow = 0.08 / (dist * 4.0 + 0.5);
-  float mouseRing = smoothstep(0.02, 0.0, abs(dist - 0.15)) * 0.3;
+  float mouseGlow = 0.06 / (dist * 6.0 + 0.5);
 
   // ── Colors ──
   vec3 magenta = vec3(1.0, 0.231, 0.549);
@@ -190,9 +189,8 @@ void main() {
   float n = noise(uv * 4.0 + uTime * 0.02);
   color += vec3(n * 0.03, n * 0.02, n * 0.05);
 
-  // Mouse interaction
-  color += magenta * mouseGlow * 0.2;
-  color += cyan * mouseRing;
+  // Subtle mouse highlight — no visible ring/glow, just barely lifts the grid
+  color += magenta * mouseGlow * 0.15;
 
   // Pulse highlights
   float pulseHighlight = pulse * gridLine * 0.15;

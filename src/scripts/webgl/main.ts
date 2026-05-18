@@ -28,7 +28,7 @@ function getWebGLCanvas(): HTMLCanvasElement | null {
 
 /* ── Calculate which "section" the viewport center is in ── */
 function getCurrentSection(): number {
-  const sections = document.querySelectorAll<HTMLElement>('section[id], .bio-hero, .project-page, .projects-page');
+  const sections = document.querySelectorAll<HTMLElement>('.hero, section[id], .bio-hero, .project-page, .projects-page');
   if (!sections.length) return 0;
 
   const viewportCenter = window.scrollY + window.innerHeight / 2;
@@ -131,6 +131,8 @@ export function initScene(): void {
       floatAmp: 0.02 + Math.random() * 0.04,
       basePos: new THREE.Vector3(positions[i].x, positions[i].y, 0),
       scrollAmp: 0.05 + Math.random() * 0.08,
+      fadePhase: Math.random() * Math.PI * 2,
+      fadeSpeed: 0.15 + Math.random() * 0.2,
     };
     objectGroup.add(obj);
     objects.push(obj);
@@ -175,7 +177,7 @@ export function initScene(): void {
   let transitionSmooth = 0;
 
   function getSectionTransition(): number {
-    const sections = document.querySelectorAll<HTMLElement>('section[id], .bio-hero, .project-page, .projects-page');
+    const sections = document.querySelectorAll<HTMLElement>('.hero, section[id], .bio-hero, .project-page, .projects-page');
     if (!sections.length) return 0;
 
     const viewportCenter = window.scrollY + window.innerHeight / 2;
@@ -275,6 +277,10 @@ export function initScene(): void {
         obj.position.x -= dx * push;
         obj.position.y -= dy * push;
       }
+
+      // Smooth fade in/out oscillation
+      const fadeVal = Math.sin(elapsed * data.fadeSpeed + data.fadePhase) * 0.5 + 0.5;
+      obj.material.opacity = 0.1 + fadeVal * 0.55;
     });
 
 

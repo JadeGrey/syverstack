@@ -183,11 +183,14 @@ interface HeatPoint {
         tctx.lineCap = 'round';
         tctx.stroke();
 
-        // Core trail — solid magenta line
+        // Core trail — magenta→cyan gradient
         tctx.beginPath();
         tctx.moveTo(prev.x, prev.y);
         tctx.lineTo(p.x, p.y);
-        tctx.strokeStyle = `rgba(255, 59, 140, ${p.opacity * 0.7})`;
+        const ratio = i / trailPoints.length;
+        tctx.strokeStyle = ratio > 0.5
+          ? `rgba(0, 245, 255, ${p.opacity * 0.7})`
+          : `rgba(255, 59, 140, ${p.opacity * 0.7})`;
         tctx.lineWidth = p.size;
         tctx.lineCap = 'round';
         tctx.stroke();
