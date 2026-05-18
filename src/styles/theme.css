@@ -99,8 +99,8 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
-  scroll-padding-top: 5rem;
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 0;
 }
 
 body {
@@ -279,7 +279,7 @@ body::after {
 section[id], .bio-hero, .project-page, .projects-page {
   scroll-snap-align: start;
   scroll-snap-stop: normal;
-  scroll-margin-top: 6rem;
+  scroll-margin-top: 7rem;
 }
 
 @media (prefers-reduced-motion) {
