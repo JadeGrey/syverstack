@@ -153,6 +153,18 @@ body::after {
   background-size: 200px 200px;
 }
 
+@media (max-width: 768px) {
+  body::after {
+    opacity: 0.015;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    display: none;
+  }
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -227,12 +239,16 @@ body::after {
   inset: 0;
   pointer-events: none;
   opacity: 0;
-  transition: opacity var(--duration-normal) var(--ease-base);
-  z-index: -1;
-  background: var(--glow-bg, transparent);
+  transition: opacity 0.3s ease;
+  z-index: 0;
+  background: radial-gradient(400px at 50% 50%, rgba(255, 59, 140, 0.06), transparent 60%);
 }
 .glow-hover.is-glow-active::before {
   opacity: 1;
+}
+.glow-hover > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Section content alignment */
