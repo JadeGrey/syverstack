@@ -1,18 +1,24 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import HeroCanvas from '@/components/ui/HeroCanvas.astro';
 ---
 
 <BaseLayout navVariant="home">
   <!-- ====== HERO ====== -->
   <section class="hero">
     <div class="container">
-      <div class="hero-content">
-        <p class="hero-eyebrow stagger-item" style="--stagger-index: 0">AI ENGINEER</p>
-        <h1 class="hero-name stagger-item" style="--stagger-index: 1">Sami Syverson</h1>
-        <p class="hero-tagline stagger-item" style="--stagger-index: 2">The future is here, AI is the frontier of the next generation.</p>
-        <div class="hero-actions stagger-item" style="--stagger-index: 3">
-          <a href="#projects" class="btn btn-primary">See my work</a>
-          <a href="/bio" class="btn btn-ghost">About me →</a>
+      <div class="hero-grid">
+        <div class="hero-content">
+          <p class="hero-eyebrow stagger-item" style="--stagger-index: 0">AI ENGINEER</p>
+          <h1 class="hero-name stagger-item" style="--stagger-index: 1">Sami Syverson</h1>
+          <p class="hero-tagline stagger-item" style="--stagger-index: 2">The future is here, AI is the frontier of the next generation.</p>
+          <div class="hero-actions stagger-item" style="--stagger-index: 3">
+            <a href="#projects" class="btn btn-primary">See my work</a>
+            <a href="/bio" class="btn btn-ghost">About me →</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <HeroCanvas />
         </div>
       </div>
     </div>
@@ -345,6 +351,21 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   @media (max-width: 768px) {
     .projects-grid { grid-template-columns: 1fr; }
     .project-card.featured { grid-template-columns: 1fr; }
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+  .hero-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @media (max-width: 768px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .hero-visual { order: -1; }
   }
   @media (max-width: 480px) {
     .hero-name { font-size: 2.5rem; }

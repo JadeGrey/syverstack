@@ -97,21 +97,6 @@ export function initScene(): void {
 
   const objects: THREE.Mesh[] = [];
 
-  // Torus knot (hero object)
-  const knotGeo = new THREE.TorusKnotGeometry(0.15, 0.05, 64, 8);
-  const knotMat = new THREE.MeshPhysicalMaterial({
-    color: new THREE.Color('#ff3b8c'),
-    emissive: new THREE.Color('#ff3b8c'),
-    emissiveIntensity: 0.3,
-    metalness: 0.7,
-    roughness: 0.2,
-    transparent: true,
-    opacity: 0.9,
-  });
-  const knot = new THREE.Mesh(knotGeo, knotMat);
-  knot.position.set(0.5, 0.1, 0);
-  objectGroup.add(knot);
-  objects.push(knot);
 
   // Floating geometries
   const colors = [new THREE.Color('#00f5ff'), new THREE.Color('#ff3b8c'), new THREE.Color('#ff3b8c'), new THREE.Color('#00f5ff')];
@@ -250,21 +235,6 @@ export function initScene(): void {
       }
     });
 
-    // Torus knot — follows mouse + scroll
-    const scrollSway = Math.sin(scroll * Math.PI * 4) * 0.04;
-    const mtX = (mouse.x - 0.5) * 0.15;
-    const mtY = (mouse.y - 0.5) * 0.1;
-    knot.position.x = 0.5 + mtX + Math.sin(elapsed * 0.4) * 0.03 + scrollSway;
-    knot.position.y = 0.1 + mtY + Math.cos(elapsed * 0.3) * 0.03 + scroll * 0.15 - 0.075;
-
-    // Spin speeds up with scroll velocity
-    const spinBoost = 1 + velocitySmooth * 3;
-    knot.rotation.x += delta * 0.4 * spinBoost;
-    knot.rotation.y += delta * 0.6 * spinBoost;
-
-    // Emissive intensity pulses with scroll velocity
-    const emissivePulse = 0.3 + velocitySmooth * 0.5;
-    knotMat.emissiveIntensity = Math.min(emissivePulse, 1.5);
 
     renderer.render(scene, camera);
     state!.rafId = requestAnimationFrame(animate);

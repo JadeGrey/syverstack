@@ -1,0 +1,184 @@
+---
+// No frontmatter needed — it's just a wrapper div + script
+---
+
+<div class="hero-canvas-wrap" aria-hidden="true">
+  <canvas id="hero-3d-canvas"></canvas>
+</div>
+
+<script>
+import * as THREE from 'three';
+
+(() => {
+const canvas = document.getElementById('hero-3d-canvas') as HTMLCanvasElement;
+if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (canvas) canvas.style.display = 'none'; // hide canvas if reduced motion
+  return;
+}
+
+const wrapper = canvas.parentElement!;
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  alpha: true,
+  antialias: true,
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
+camera.position.z = 2;
+
+// Ambient + point lights for neon glow
+const ambient = new THREE.AmbientLight(0x404060);
+scene.add(ambient);
+const light1 = new THREE.PointLight(0xff3b8c, 2, 5);
+light1.position.set(1, 1, 2);
+scene.add(light1);
+const light2 = new THREE.PointLight(0x00f5ff, 1.5, 5);
+light2.position.set(-1, -1, 2);
+scene.add(light2);
+
+// Torus knot (hero object)
+const knotGeo = new THREE.TorusKnotGeometry(0.5, 0.15, 100, 16);
+const knotMat = new THREE.MeshPhysicalMaterial({
+  color: new THREE.Color('#ff3b8c'),
+  emissive: new THREE.Color('#ff3b8c'),
+  emissiveIntensity: 0.4,
+  metalness: 0.8,
+  roughness: 0.15,
+  transparent: true,
+  opacity: 0.85,
+});
+const knot = new THREE.Mesh(knotGeo, knotMat);
+scene.add(knot);
+
+// Wireframe ring around knot
+const ringGeo = new THREE.TorusGeometry(0.7, 0.02, 32, 64);
+const ringMat = new THREE.MeshBasicMaterial({
+  color: 0x00f5ff,
+  transparent: true,
+  opacity: 0.3,
+  wireframe: true,
+});
+const ring = new THREE.Mesh(ringGeo, ringMat);
+ring.rotation.x = Math.PI / 2;
+scene.add(ring);
+
+// Inner particle ring (magenta)
+const particleCount = 60;
+const particleGeo = new THREE.BufferGeometry();
+const positions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+  const theta = (i / particleCount) * Math.PI * 2;
+  const radius = 0.85 + Math.random() * 0.15;
+  positions[i * 3] = Math.cos(theta) * radius;
+  positions[i * 3 + 1] = Math.sin(theta) * radius;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
+}
+particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const particleMat = new THREE.PointsMaterial({
+  color: 0xff3b8c,
+  size: 0.02,
+  transparent: true,
+  opacity: 0.6,
+  blending: THREE.AdditiveBlending,
+});
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
+
+// Outer particle ring (cyan)
+const particleGeo2 = new THREE.BufferGeometry();
+const pos2 = new Float32Array(30 * 3);
+for (let i = 0; i < 30; i++) {
+  const theta = (i / 30) * Math.PI * 2 + 0.5;
+  const radius = 0.65;
+  pos2[i * 3] = Math.cos(theta) * radius;
+  pos2[i * 3 + 1] = Math.sin(theta) * radius;
+  pos2[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
+}
+particleGeo2.setAttribute('position', new THREE.BufferAttribute(pos2, 3));
+const particleMat2 = new THREE.PointsMaterial({
+  color: 0x00f5ff,
+  size: 0.015,
+  transparent: true,
+  opacity: 0.4,
+  blending: THREE.AdditiveBlending,
+});
+const particles2 = new THREE.Points(particleGeo2, particleMat2);
+scene.add(particles2);
+
+// Resize handler
+function resize() {
+  const rect = wrapper.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
+  if (w === 0 || h === 0) return;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+const ro = new ResizeObserver(resize);
+ro.observe(wrapper);
+resize();
+
+// Mouse tracking
+let mouseX = 0, mouseY = 0;
+let targetMX = 0, targetMY = 0;
+wrapper.addEventListener('mousemove', (e: MouseEvent) => {
+  const rect = wrapper.getBoundingClientRect();
+  targetMX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+  targetMY = ((e.clientY - rect.top) / rect.height - 0.5) * -2;
+});
+
+// Animation loop
+const clock = new THREE.Clock();
+function animate() {
+  const t = clock.getElapsedTime();
+
+  mouseX += (targetMX - mouseX) * 0.05;
+  mouseY += (targetMY - mouseY) * 0.05;
+
+  knot.rotation.x = t * 0.5 + mouseY * 0.3;
+  knot.rotation.y = t * 0.8 + mouseX * 0.3;
+  knot.position.x = mouseX * 0.2;
+  knot.position.y = mouseY * 0.2;
+
+  ring.rotation.z = t * 0.2;
+  ring.position.x = mouseX * 0.1;
+  ring.position.y = mouseY * 0.1;
+
+  particles.rotation.y = t * 0.3;
+  particles.rotation.x = Math.sin(t * 0.1) * 0.1;
+  particles.position.x = mouseX * 0.15;
+  particles.position.y = mouseY * 0.15;
+
+  particles2.rotation.y = -t * 0.4;
+  particles2.position.x = mouseX * 0.1;
+  particles2.position.y = mouseY * 0.1;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+animate();
+})();
+</script>
+
+<style is:global>
+  .hero-canvas-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: min(400px, 60vw);
+    margin: 0 auto;
+  }
+  .hero-canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  @media (max-width: 768px) {
+    .hero-canvas-wrap {
+      max-width: min(250px, 50vw);
+    }
+  }
+</style>
