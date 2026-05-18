@@ -93,7 +93,6 @@
   --duration-instant: 0ms;
 
   /* Atmosphere — Glow */
-  --glow-color: var(--color-accent-glow);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -279,7 +278,7 @@ section[id], .bio-hero, .project-page, .projects-page {
   height: 60%;
   background: radial-gradient(ellipse at center, rgba(255, 59, 140, 0.06) 0%, transparent 70%);
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
 }
 .hero::after {
   content: '';
@@ -290,5 +289,5 @@ section[id], .bio-hero, .project-page, .projects-page {
   height: 40%;
   background: radial-gradient(ellipse at center, rgba(0, 245, 255, 0.04) 0%, transparent 70%);
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
 }

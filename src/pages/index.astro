@@ -7,7 +7,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   <section class="hero">
     <div class="container">
       <div class="hero-content">
-        <p class="hero-eyebrow stagger-item" style="--stagger-index: 0">// AI ENGINEER</p>
+        <p class="hero-eyebrow stagger-item" style="--stagger-index: 0">AI ENGINEER</p>
         <h1 class="hero-name stagger-item" style="--stagger-index: 1">Sami Syverson</h1>
         <p class="hero-tagline stagger-item" style="--stagger-index: 2">The future is here, AI is the frontier of the next generation.</p>
         <div class="hero-actions stagger-item" style="--stagger-index: 3">
@@ -142,6 +142,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     text-transform: uppercase;
     letter-spacing: 0.2em;
     margin-bottom: var(--space-md);
+  }
+  .hero-eyebrow::before {
+    content: '// ';
+    opacity: 0.4;
   }
   .hero-name {
     font-family: var(--font-display);
