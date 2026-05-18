@@ -1,7 +1,7 @@
 /**
- * glowCursor.ts — Cursor replacement + trail + mobile heat signature
+ * glowCursor.ts — Cursor glow trail + mobile heat signature
  *
- * Desktop: replaces system cursor with magenta dot + glow ring
+ * Desktop: canvas-based glow trail behind the default cursor
  * Mobile: heat signature trail via canvas overlay
  */
 
@@ -123,37 +123,7 @@ interface HeatPoint {
     return;
   }
 
-  /* ── Desktop: cursor replacement + trail ── */
-
-  // Build cursor DOM elements
-  const wrapper = document.createElement('div');
-  wrapper.className = 'nc-cursor';
-  Object.assign(wrapper.style, {
-    position: 'fixed', top: '0', left: '0', width: '0', height: '0',
-    pointerEvents: 'none', zIndex: '99999', willChange: 'transform',
-  });
-
-  const glow = document.createElement('div');
-  Object.assign(glow.style, {
-    position: 'absolute', width: '30px', height: '30px', borderRadius: '50%',
-    background: 'radial-gradient(circle, var(--color-accent-glow, rgba(255,59,140,0.6)) 0%, transparent 70%)',
-    transform: 'translate(-50%, -50%)', filter: 'blur(4px)',
-    transition: 'filter 300ms ease, background 300ms ease',
-  });
-
-  const dot = document.createElement('div');
-  Object.assign(dot.style, {
-    position: 'absolute', width: '12px', height: '12px', borderRadius: '50%',
-    background: 'var(--color-accent-primary, #ff3b8c)',
-    transform: 'translate(-50%, -50%)',
-    boxShadow: '0 0 6px var(--color-accent-glow)',
-    transition: 'transform 300ms ease',
-  });
-
-  glow.appendChild(dot);
-  wrapper.appendChild(glow);
-  document.body.appendChild(wrapper);
-  document.body.style.cursor = 'none';
+  /* ── Desktop: glow trail only (no cursor replacement) ── */
 
   // Trail canvas
   const trailCanvas = document.createElement('canvas');
@@ -175,21 +145,12 @@ interface HeatPoint {
   resizeTrail();
   window.addEventListener('resize', resizeTrail);
 
-  // State
-  let targetX = 0, targetY = 0;
-  let currentX = 0, currentY = 0;
-  let isHoveringInteractive = false;
-
   const trailPoints: TrailPoint[] = [];
   const MAX_TRAIL = 30;
   const TRAIL_SPACING = 8;
   let lastTX = 0, lastTY = 0, trailAccum = 0;
 
-  // Mouse handlers
   document.addEventListener('mousemove', (e: MouseEvent) => {
-    targetX = e.clientX;
-    targetY = e.clientY;
-
     const dx = e.clientX - lastTX;
     const dy = e.clientY - lastTY;
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -203,36 +164,7 @@ interface HeatPoint {
     lastTY = e.clientY;
   }, { passive: true });
 
-  document.addEventListener('mouseover', (e: MouseEvent) => {
-    const interactive = (e.target as HTMLElement).closest('a, button, [role="button"], input, select, textarea');
-    if (interactive && !isHoveringInteractive) {
-      isHoveringInteractive = true;
-      dot.style.transform = 'translate(-50%, -50%) scale(1.5)';
-      glow.style.filter = 'blur(8px)';
-      glow.style.background = 'radial-gradient(circle, var(--color-accent-glow, rgba(255,59,140,0.8)) 0%, transparent 60%)';
-    } else if (!interactive && isHoveringInteractive) {
-      isHoveringInteractive = false;
-      dot.style.transform = 'translate(-50%, -50%) scale(1)';
-      glow.style.filter = 'blur(4px)';
-      glow.style.background = 'radial-gradient(circle, var(--color-accent-glow, rgba(255,59,140,0.6)) 0%, transparent 70%)';
-    }
-  }, { passive: true });
-
-  document.addEventListener('mouseleave', () => {
-    if (isHoveringInteractive) {
-      isHoveringInteractive = false;
-      dot.style.transform = 'translate(-50%, -50%) scale(1)';
-      glow.style.filter = 'blur(4px)';
-      glow.style.background = 'radial-gradient(circle, var(--color-accent-glow, rgba(255,59,140,0.6)) 0%, transparent 70%)';
-    }
-  }, { passive: true });
-
-  // Animation loop
-  function animateCursor() {
-    currentX += (targetX - currentX) * 0.15;
-    currentY += (targetY - currentY) * 0.15;
-    wrapper.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-
+  function drawTrail() {
     tctx.clearRect(0, 0, tw, th);
     for (let i = trailPoints.length - 1; i >= 0; i--) {
       const p = trailPoints[i];
@@ -242,34 +174,31 @@ interface HeatPoint {
 
       if (i > 0) {
         const prev = trailPoints[i - 1];
+        // Outer glow layer (wider, fainter)
         tctx.beginPath();
         tctx.moveTo(prev.x, prev.y);
         tctx.lineTo(p.x, p.y);
-        tctx.strokeStyle = `rgba(255, 59, 140, ${p.opacity * 0.3})`;
-        tctx.lineWidth = p.size * 4;
+        tctx.strokeStyle = `rgba(255, 59, 140, ${p.opacity * 0.15})`;
+        tctx.lineWidth = p.size * 6;
         tctx.lineCap = 'round';
         tctx.stroke();
 
+        // Core trail line (magenta→cyan gradient)
         tctx.beginPath();
         tctx.moveTo(prev.x, prev.y);
         tctx.lineTo(p.x, p.y);
         const ratio = i / trailPoints.length;
         tctx.strokeStyle = ratio > 0.5
-          ? `rgba(0, 245, 255, ${p.opacity * 0.8})`
-          : `rgba(255, 59, 140, ${p.opacity * 0.8})`;
+          ? `rgba(0, 245, 255, ${p.opacity * 0.6})`
+          : `rgba(255, 59, 140, ${p.opacity * 0.6})`;
         tctx.lineWidth = p.size;
         tctx.lineCap = 'round';
         tctx.stroke();
       }
     }
 
-    requestAnimationFrame(animateCursor);
+    requestAnimationFrame(drawTrail);
   }
 
-  // Seed cursor position
-  targetX = window.innerWidth / 2;
-  targetY = window.innerHeight / 2;
-  currentX = targetX;
-  currentY = targetY;
-  animateCursor();
+  drawTrail();
 })();

@@ -21,8 +21,8 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
-camera.position.z = 2;
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 10);
+camera.position.z = 2.6;
 
 // Ambient + point lights for neon glow
 const ambient = new THREE.AmbientLight(0x404060);
@@ -48,33 +48,23 @@ const knotMat = new THREE.MeshPhysicalMaterial({
 const knot = new THREE.Mesh(knotGeo, knotMat);
 scene.add(knot);
 
-// Wireframe ring around knot
-const ringGeo = new THREE.TorusGeometry(0.7, 0.02, 32, 64);
-const ringMat = new THREE.MeshBasicMaterial({
-  color: 0x00f5ff,
-  transparent: true,
-  opacity: 0.3,
-  wireframe: true,
-});
-const ring = new THREE.Mesh(ringGeo, ringMat);
-ring.rotation.x = Math.PI / 2;
-scene.add(ring);
 
-// Inner particle ring (magenta)
+
+// Particle ring (magenta, larger orbit)
 const particleCount = 60;
 const particleGeo = new THREE.BufferGeometry();
 const positions = new Float32Array(particleCount * 3);
 for (let i = 0; i < particleCount; i++) {
   const theta = (i / particleCount) * Math.PI * 2;
-  const radius = 0.85 + Math.random() * 0.15;
+  const radius = 0.95 + Math.random() * 0.2;
   positions[i * 3] = Math.cos(theta) * radius;
   positions[i * 3 + 1] = Math.sin(theta) * radius;
-  positions[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 0.25;
 }
 particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 const particleMat = new THREE.PointsMaterial({
   color: 0xff3b8c,
-  size: 0.02,
+  size: 0.025,
   transparent: true,
   opacity: 0.6,
   blending: THREE.AdditiveBlending,
@@ -82,22 +72,22 @@ const particleMat = new THREE.PointsMaterial({
 const particles = new THREE.Points(particleGeo, particleMat);
 scene.add(particles);
 
-// Outer particle ring (cyan)
+// Particle ring (cyan, smaller orbit)
 const particleGeo2 = new THREE.BufferGeometry();
-const pos2 = new Float32Array(30 * 3);
-for (let i = 0; i < 30; i++) {
-  const theta = (i / 30) * Math.PI * 2 + 0.5;
-  const radius = 0.65;
+const pos2 = new Float32Array(24 * 3);
+for (let i = 0; i < 24; i++) {
+  const theta = (i / 24) * Math.PI * 2 + 0.5;
+  const radius = 0.7 + Math.random() * 0.1;
   pos2[i * 3] = Math.cos(theta) * radius;
   pos2[i * 3 + 1] = Math.sin(theta) * radius;
-  pos2[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
+  pos2[i * 3 + 2] = (Math.random() - 0.5) * 0.15;
 }
 particleGeo2.setAttribute('position', new THREE.BufferAttribute(pos2, 3));
 const particleMat2 = new THREE.PointsMaterial({
   color: 0x00f5ff,
-  size: 0.015,
+  size: 0.018,
   transparent: true,
-  opacity: 0.4,
+  opacity: 0.5,
   blending: THREE.AdditiveBlending,
 });
 const particles2 = new THREE.Points(particleGeo2, particleMat2);
@@ -139,10 +129,6 @@ function animate() {
   knot.position.x = mouseX * 0.2;
   knot.position.y = mouseY * 0.2;
 
-  ring.rotation.z = t * 0.2;
-  ring.position.x = mouseX * 0.1;
-  ring.position.y = mouseY * 0.1;
-
   particles.rotation.y = t * 0.3;
   particles.rotation.x = Math.sin(t * 0.1) * 0.1;
   particles.position.x = mouseX * 0.15;
@@ -163,18 +149,22 @@ animate();
   .hero-canvas-wrap {
     position: relative;
     width: 100%;
-    aspect-ratio: 1;
-    max-width: min(400px, 60vw);
+    min-width: 280px;
+    min-height: 280px;
     margin: 0 auto;
   }
   .hero-canvas-wrap canvas {
     display: block;
     width: 100%;
-    height: 100%;
+    height: 300px;
   }
   @media (max-width: 768px) {
     .hero-canvas-wrap {
-      max-width: min(250px, 50vw);
+      min-width: 200px;
+      min-height: 200px;
+    }
+    .hero-canvas-wrap canvas {
+      height: 220px;
     }
   }
 </style>
