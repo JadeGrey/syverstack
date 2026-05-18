@@ -21,8 +21,8 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 10);
-camera.position.z = 2.6;
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 15);
+camera.position.z = 3.5;
 
 // Ambient + point lights for neon glow
 const ambient = new THREE.AmbientLight(0x404060);
@@ -56,7 +56,7 @@ const particleGeo = new THREE.BufferGeometry();
 const positions = new Float32Array(particleCount * 3);
 for (let i = 0; i < particleCount; i++) {
   const theta = (i / particleCount) * Math.PI * 2;
-  const radius = 0.95 + Math.random() * 0.2;
+  const radius = 0.85 + Math.random() * 0.15;
   positions[i * 3] = Math.cos(theta) * radius;
   positions[i * 3 + 1] = Math.sin(theta) * radius;
   positions[i * 3 + 2] = (Math.random() - 0.5) * 0.25;
@@ -77,7 +77,7 @@ const particleGeo2 = new THREE.BufferGeometry();
 const pos2 = new Float32Array(24 * 3);
 for (let i = 0; i < 24; i++) {
   const theta = (i / 24) * Math.PI * 2 + 0.5;
-  const radius = 0.7 + Math.random() * 0.1;
+  const radius = 0.6 + Math.random() * 0.1;
   pos2[i * 3] = Math.cos(theta) * radius;
   pos2[i * 3 + 1] = Math.sin(theta) * radius;
   pos2[i * 3 + 2] = (Math.random() - 0.5) * 0.15;
@@ -149,22 +149,21 @@ animate();
   .hero-canvas-wrap {
     position: relative;
     width: 100%;
-    min-width: 280px;
-    min-height: 280px;
-    margin: 0 auto;
+    height: 100%;
+    min-height: 320px;
   }
   .hero-canvas-wrap canvas {
     display: block;
     width: 100%;
-    height: 300px;
+    height: 100%;
+    min-height: 320px;
   }
   @media (max-width: 768px) {
     .hero-canvas-wrap {
-      min-width: 200px;
-      min-height: 200px;
+      min-height: 240px;
     }
     .hero-canvas-wrap canvas {
-      height: 220px;
+      min-height: 240px;
     }
   }
 </style>

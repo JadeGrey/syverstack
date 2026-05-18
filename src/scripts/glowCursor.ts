@@ -1,7 +1,7 @@
 /**
  * glowCursor.ts — Cursor glow trail + mobile heat signature
  *
- * Desktop: canvas-based glow trail behind the default cursor
+ * Desktop: canvas-based magenta glow trail behind the default cursor
  * Mobile: heat signature trail via canvas overlay
  */
 
@@ -123,9 +123,8 @@ interface HeatPoint {
     return;
   }
 
-  /* ── Desktop: glow trail only (no cursor replacement) ── */
+  /* ── Desktop: magenta glow trail only (no cursor replacement) ── */
 
-  // Trail canvas
   const trailCanvas = document.createElement('canvas');
   Object.assign(trailCanvas.style, {
     position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
@@ -174,23 +173,21 @@ interface HeatPoint {
 
       if (i > 0) {
         const prev = trailPoints[i - 1];
-        // Outer glow layer (wider, fainter)
+
+        // Outer glow — wider, fainter magenta
         tctx.beginPath();
         tctx.moveTo(prev.x, prev.y);
         tctx.lineTo(p.x, p.y);
-        tctx.strokeStyle = `rgba(255, 59, 140, ${p.opacity * 0.15})`;
-        tctx.lineWidth = p.size * 6;
+        tctx.strokeStyle = `rgba(255, 59, 140, ${p.opacity * 0.12})`;
+        tctx.lineWidth = p.size * 8;
         tctx.lineCap = 'round';
         tctx.stroke();
 
-        // Core trail line (magenta→cyan gradient)
+        // Core trail — solid magenta line
         tctx.beginPath();
         tctx.moveTo(prev.x, prev.y);
         tctx.lineTo(p.x, p.y);
-        const ratio = i / trailPoints.length;
-        tctx.strokeStyle = ratio > 0.5
-          ? `rgba(0, 245, 255, ${p.opacity * 0.6})`
-          : `rgba(255, 59, 140, ${p.opacity * 0.6})`;
+        tctx.strokeStyle = `rgba(255, 59, 140, ${p.opacity * 0.7})`;
         tctx.lineWidth = p.size;
         tctx.lineCap = 'round';
         tctx.stroke();

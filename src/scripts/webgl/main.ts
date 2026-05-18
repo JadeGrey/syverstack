@@ -12,6 +12,7 @@ interface SceneState {
   scroll: number;
   scrollVelocity: number;
   section: number;
+  sectionTransition: number;
   objects: THREE.Mesh[];
   clock: THREE.Clock;
   running: boolean;
@@ -76,6 +77,7 @@ export function initScene(): void {
     uScroll: { value: 0 },
     uScrollVelocity: { value: 0 },
     uSection: { value: 0 },
+    uSectionTransition: { value: 0 },
     uOpacity: { value: 1.0 },
   };
 
@@ -163,20 +165,58 @@ export function initScene(): void {
   window.addEventListener('mousemove', onMouse);
   window.addEventListener('touchmove', onTouch, { passive: true });
 
-  // Scroll — velocity tracking
+  // Scroll — velocity tracking + section transition
   let scroll = 0;
   let scrollVelocity = 0;
   let section = 0;
+  let sectionTransition = 0;
   let lastScrollY = window.scrollY;
   let velocitySmooth = 0;
+  let transitionSmooth = 0;
+
+  function getSectionTransition(): number {
+    const sections = document.querySelectorAll<HTMLElement>('section[id], .bio-hero, .project-page, .projects-page');
+    if (!sections.length) return 0;
+
+    const viewportCenter = window.scrollY + window.innerHeight / 2;
+    let closestIdx = 0;
+    let secondIdx = 0;
+    let closestDist = Infinity;
+    let secondDist = Infinity;
+    let totalHeightSections = 0;
+
+    // Find the two closest section centers
+    sections.forEach((el, idx) => {
+      const rect = el.getBoundingClientRect();
+      const elCenter = window.scrollY + rect.top + rect.height / 2;
+      const dist = Math.abs(viewportCenter - elCenter);
+      totalHeightSections += rect.height;
+
+      if (dist < closestDist) {
+        secondDist = closestDist;
+        secondIdx = closestIdx;
+        closestDist = dist;
+        closestIdx = idx;
+      } else if (dist < secondDist) {
+        secondDist = dist;
+        secondIdx = idx;
+      }
+    });
+
+    // Normalized transition: 0 = at closest center, 1 = halfway between centers
+    const avgSectionHeight = totalHeightSections / sections.length;
+    const halfWay = avgSectionHeight * 0.4;
+    return Math.min(1, closestDist / halfWay);
+  }
 
   function onScroll() {
     const current = window.scrollY;
     scroll = current / (document.documentElement.scrollHeight - window.innerHeight);
     const delta = Math.abs(current - lastScrollY);
-    scrollVelocity = delta / 16; // normalize roughly to px/ms
+    scrollVelocity = delta / 16;
     lastScrollY = current;
     section = getCurrentSection();
+    sectionTransition = getSectionTransition();
   }
   window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -193,14 +233,16 @@ export function initScene(): void {
     mouse.x += (targetMouse.x - mouse.x) * 0.05;
     mouse.y += (targetMouse.y - mouse.y) * 0.05;
 
-    // Smooth scroll velocity decay
-    velocitySmooth += (scrollVelocity - velocitySmooth) * 0.1;
-    scrollVelocity *= 0.85; // rapid decay
+    // Smooth scroll velocity + section transition
+    velocitySmooth += (scrollVelocity - velocitySmooth) * 0.08;
+    scrollVelocity *= 0.85;
+    transitionSmooth += (sectionTransition - transitionSmooth) * 0.05;
 
     uniforms.uTime.value = elapsed;
     uniforms.uScroll.value = scroll;
     uniforms.uScrollVelocity.value = Math.min(velocitySmooth, 2.0);
     uniforms.uSection.value = section;
+    uniforms.uSectionTransition.value = Math.min(transitionSmooth, 1.0);
     uniforms.uMouse.value.set(mouse.x, mouse.y);
 
     // Animate 3D objects with scroll reactivity
