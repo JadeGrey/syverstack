@@ -25,7 +25,6 @@ const { title = 'Sami Syverson — AI Engineer', description = 'AI engineer port
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://syverstack.com" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    
     <meta name="theme-color" content="#05070d" />
   </head>
   <body>
@@ -43,8 +42,26 @@ const { title = 'Sami Syverson — AI Engineer', description = 'AI engineer port
     position: relative;
     z-index: 1;
   }
+
+  /* Section transitions */
+  section[id], .bio-hero, .project-page, .projects-page {
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  /* Scroll-progress elements: default visible, JS handles fade */
+  [data-scroll-progress] {
+    opacity: 1;
+    transition: none;
+  }
+
+  /* Stagger items that aren't revealed yet start hidden */
+  .stagger-item:not(.revealed) {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .webgl-canvas {
+    .webgl-canvas, #trail-canvas {
       display: none !important;
     }
   }

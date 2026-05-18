@@ -7,28 +7,50 @@ interface SceneState {
   camera: THREE.OrthographicCamera;
   shaderMaterial: THREE.ShaderMaterial;
   mesh: THREE.Mesh;
-  time: number;
   mouse: THREE.Vector2;
   targetMouse: THREE.Vector2;
   scroll: number;
+  scrollVelocity: number;
+  section: number;
   objects: THREE.Mesh[];
   clock: THREE.Clock;
   running: boolean;
   rafId: number;
+  lastScrollY: number;
 }
 
 let state: SceneState | null = null;
 
 function getWebGLCanvas(): HTMLCanvasElement | null {
-  let canvas = document.getElementById('webgl-canvas') as HTMLCanvasElement | null;
-  return canvas;
+  return document.getElementById('webgl-canvas') as HTMLCanvasElement | null;
+}
+
+/* ── Calculate which "section" the viewport center is in ── */
+function getCurrentSection(): number {
+  const sections = document.querySelectorAll<HTMLElement>('section[id], .bio-hero, .project-page, .projects-page');
+  if (!sections.length) return 0;
+
+  const viewportCenter = window.scrollY + window.innerHeight / 2;
+  let bestSection = 0;
+  let bestDist = Infinity;
+
+  sections.forEach((el, idx) => {
+    const rect = el.getBoundingClientRect();
+    const elCenter = window.scrollY + rect.top + rect.height / 2;
+    const dist = Math.abs(viewportCenter - elCenter);
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestSection = idx / Math.max(sections.length - 1, 1);
+    }
+  });
+
+  return bestSection;
 }
 
 export function initScene(): void {
   const canvas = getWebGLCanvas();
   if (!canvas || state) return;
 
-  // Check reduced motion
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     canvas.style.display = 'none';
     return;
@@ -52,6 +74,8 @@ export function initScene(): void {
     uMouse: { value: new THREE.Vector2(0.5, 0.5) },
     uTime: { value: 0 },
     uScroll: { value: 0 },
+    uScrollVelocity: { value: 0 },
+    uSection: { value: 0 },
     uOpacity: { value: 1.0 },
   };
 
@@ -67,13 +91,13 @@ export function initScene(): void {
   const mesh = new THREE.Mesh(geometry, shaderMaterial);
   scene.add(mesh);
 
-  // Add 3D objects in foreground
+  // ── 3D foreground objects ──
   const objectGroup = new THREE.Group();
   scene.add(objectGroup);
 
   const objects: THREE.Mesh[] = [];
 
-  // Torus knot (hero)
+  // Torus knot (hero object)
   const knotGeo = new THREE.TorusKnotGeometry(0.15, 0.05, 64, 8);
   const knotMat = new THREE.MeshPhysicalMaterial({
     color: new THREE.Color('#ff3b8c'),
@@ -81,18 +105,16 @@ export function initScene(): void {
     emissiveIntensity: 0.3,
     metalness: 0.7,
     roughness: 0.2,
-    wireframe: false,
     transparent: true,
     opacity: 0.9,
   });
   const knot = new THREE.Mesh(knotGeo, knotMat);
   knot.position.set(0.5, 0.1, 0);
-  knot.scale.set(1, 1, 1);
   objectGroup.add(knot);
   objects.push(knot);
 
-  // Secondary floating geometries
-  const colors = [new THREE.Color('#00f5ff'), new THREE.Color('#ff3b8c'), new THREE.Color('#ff3b8c')];
+  // Floating geometries
+  const colors = [new THREE.Color('#00f5ff'), new THREE.Color('#ff3b8c'), new THREE.Color('#ff3b8c'), new THREE.Color('#00f5ff')];
   const positions = [
     { x: -0.6, y: -0.3 },
     { x: 0.7, y: -0.5 },
@@ -121,24 +143,25 @@ export function initScene(): void {
       floatSpeed: 0.3 + Math.random() * 0.5,
       floatAmp: 0.02 + Math.random() * 0.04,
       basePos: new THREE.Vector3(positions[i].x, positions[i].y, 0),
+      scrollAmp: 0.05 + Math.random() * 0.08,
     };
     objectGroup.add(obj);
     objects.push(obj);
   }
 
-  // Resize handler
+  /* ── Event handlers ── */
+
   function resize() {
     const w = window.innerWidth;
     const h = window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio, 2);
     renderer.setSize(w, h);
-    renderer.setPixelRatio(dpr);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     uniforms.uResolution.value.set(w, h);
   }
   window.addEventListener('resize', resize);
   resize();
 
-  // Mouse handler
+  // Mouse
   const mouse = new THREE.Vector2(0.5, 0.5);
   const targetMouse = new THREE.Vector2(0.5, 0.5);
 
@@ -155,14 +178,24 @@ export function initScene(): void {
   window.addEventListener('mousemove', onMouse);
   window.addEventListener('touchmove', onTouch, { passive: true });
 
-  // Scroll handler
+  // Scroll — velocity tracking
   let scroll = 0;
+  let scrollVelocity = 0;
+  let section = 0;
+  let lastScrollY = window.scrollY;
+  let velocitySmooth = 0;
+
   function onScroll() {
-    scroll = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    const current = window.scrollY;
+    scroll = current / (document.documentElement.scrollHeight - window.innerHeight);
+    const delta = Math.abs(current - lastScrollY);
+    scrollVelocity = delta / 16; // normalize roughly to px/ms
+    lastScrollY = current;
+    section = getCurrentSection();
   }
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  // Animation loop
+  /* ── Animation loop ── */
   const clock = new THREE.Clock();
   let running = true;
 
@@ -175,20 +208,38 @@ export function initScene(): void {
     mouse.x += (targetMouse.x - mouse.x) * 0.05;
     mouse.y += (targetMouse.y - mouse.y) * 0.05;
 
+    // Smooth scroll velocity decay
+    velocitySmooth += (scrollVelocity - velocitySmooth) * 0.1;
+    scrollVelocity *= 0.85; // rapid decay
+
     uniforms.uTime.value = elapsed;
     uniforms.uScroll.value = scroll;
+    uniforms.uScrollVelocity.value = Math.min(velocitySmooth, 2.0);
+    uniforms.uSection.value = section;
     uniforms.uMouse.value.set(mouse.x, mouse.y);
 
-    // Animate objects
+    // Animate 3D objects with scroll reactivity
     objects.forEach((obj, i) => {
       const data = obj.userData;
+      // Rotation
       obj.rotation.x += delta * data.rotSpeed;
       obj.rotation.y += delta * data.rotSpeed * 0.7;
-      obj.position.x = data.basePos.x + Math.sin(elapsed * data.floatSpeed + data.floatOffset) * data.floatAmp;
-      obj.position.y = data.basePos.y + Math.cos(elapsed * data.floatSpeed * 0.8 + data.floatOffset) * data.floatAmp;
-      obj.position.z = Math.sin(elapsed * 0.5 + data.floatOffset) * 0.05;
 
-      // React to mouse proximity
+      // Base floating
+      obj.position.x = data.basePos.x
+        + Math.sin(elapsed * data.floatSpeed + data.floatOffset) * data.floatAmp;
+      obj.position.y = data.basePos.y
+        + Math.cos(elapsed * data.floatSpeed * 0.8 + data.floatOffset) * data.floatAmp;
+
+      // Scroll-responsive vertical drift
+      const scrollDrift = (scroll - 0.5) * data.scrollAmp;
+      obj.position.y += scrollDrift;
+
+      // Z-axis breathing with scroll velocity
+      obj.position.z = Math.sin(elapsed * 0.5 + data.floatOffset) * 0.05
+        + velocitySmooth * 0.02;
+
+      // Mouse repulsion
       const dx = mouse.x - (obj.position.x * 0.5 + 0.5);
       const dy = mouse.y - (obj.position.y * 0.5 + 0.5);
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -199,22 +250,30 @@ export function initScene(): void {
       }
     });
 
-    // Torus knot floats toward mouse slightly
+    // Torus knot — follows mouse + scroll
+    const scrollSway = Math.sin(scroll * Math.PI * 4) * 0.04;
     const mtX = (mouse.x - 0.5) * 0.15;
     const mtY = (mouse.y - 0.5) * 0.1;
-    knot.position.x = 0.5 + mtX + Math.sin(elapsed * 0.4) * 0.03;
-    knot.position.y = 0.1 + mtY + Math.cos(elapsed * 0.3) * 0.03;
-    knot.rotation.x = elapsed * 0.4;
-    knot.rotation.y = elapsed * 0.6;
+    knot.position.x = 0.5 + mtX + Math.sin(elapsed * 0.4) * 0.03 + scrollSway;
+    knot.position.y = 0.1 + mtY + Math.cos(elapsed * 0.3) * 0.03 + scroll * 0.15 - 0.075;
+
+    // Spin speeds up with scroll velocity
+    const spinBoost = 1 + velocitySmooth * 3;
+    knot.rotation.x += delta * 0.4 * spinBoost;
+    knot.rotation.y += delta * 0.6 * spinBoost;
+
+    // Emissive intensity pulses with scroll velocity
+    const emissivePulse = 0.3 + velocitySmooth * 0.5;
+    knotMat.emissiveIntensity = Math.min(emissivePulse, 1.5);
 
     renderer.render(scene, camera);
     state!.rafId = requestAnimationFrame(animate);
   }
 
   state = {
-    renderer, scene, camera, shaderMaterial,
-    mesh, time: 0, mouse, targetMouse, scroll,
-    objects, clock, running, rafId: 0,
+    renderer, scene, camera, shaderMaterial, mesh,
+    mouse, targetMouse, scroll, scrollVelocity, section,
+    objects, clock, running, rafId: 0, lastScrollY,
   };
 
   animate();
