@@ -26,14 +26,14 @@
   async function run(el: HTMLElement) {
     // Clear hero-name and set up textNode + cursor span
     el.textContent = '';
-    const textNode = document.createTextNode('');
+    const textNode = document.createTextNode(TYPO_TEXT[0] || '');
     const cursor = document.createElement('span');
     cursor.className = 'typewriter-cursor';
     el.appendChild(textNode);
     el.appendChild(cursor);
 
-    // Phase 1: Type typo
-    for (let i = 0; i < TYPO_TEXT.length; i++) {
+    // Phase 1: Type typo (start at 1, first char already rendered to avoid blank flash)
+    for (let i = 1; i < TYPO_TEXT.length; i++) {
       textNode.textContent = TYPO_TEXT.slice(0, i + 1);
       await sleep(TYPE_DELAY);
     }
