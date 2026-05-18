@@ -26,26 +26,30 @@ function getWebGLCanvas(): HTMLCanvasElement | null {
   return document.getElementById('webgl-canvas') as HTMLCanvasElement | null;
 }
 
-/* ── Calculate which "section" the viewport center is in ── */
-function getCurrentSection(): number {
-  const sections = document.querySelectorAll<HTMLElement>('.hero, section[id], .bio-hero, .project-page, .projects-page');
-  if (!sections.length) return 0;
+/* ── Section boundary cache ── */
+let sectionBoundaries: { top: number; bottom: number; center: number; idx: number }[] = [];
+let sectionScrollMargin = 80; // nav + padding
 
-  const viewportCenter = window.scrollY + window.innerHeight / 2;
-  let bestSection = 0;
-  let bestDist = Infinity;
-
-  sections.forEach((el, idx) => {
+function cacheSectionBoundaries() {
+  const els = document.querySelectorAll<HTMLElement>('.hero, section[id], .bio-hero, .project-page, .projects-page');
+  sectionBoundaries = [];
+  els.forEach((el, idx) => {
     const rect = el.getBoundingClientRect();
-    const elCenter = window.scrollY + rect.top + rect.height / 2;
-    const dist = Math.abs(viewportCenter - elCenter);
-    if (dist < bestDist) {
-      bestDist = dist;
-      bestSection = idx / Math.max(sections.length - 1, 1);
-    }
+    const top = window.scrollY + rect.top;
+    const bottom = top + rect.height;
+    sectionBoundaries.push({ top, bottom, center: (top + bottom) / 2, idx });
   });
+}
 
-  return bestSection;
+function getCurrentSection(): number {
+  if (!sectionBoundaries.length) return 0;
+  const viewportCenter = window.scrollY + window.innerHeight / 2;
+  let best = 0, bestDist = Infinity;
+  for (let i = 0; i < sectionBoundaries.length; i++) {
+    const dist = Math.abs(viewportCenter - sectionBoundaries[i].center);
+    if (dist < bestDist) { bestDist = dist; best = i; }
+  }
+  return best / Math.max(sectionBoundaries.length - 1, 1);
 }
 
 export function initScene(): void {
@@ -147,7 +151,10 @@ export function initScene(): void {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     uniforms.uResolution.value.set(w, h);
   }
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', () => {
+    resize();
+    cacheSectionBoundaries(); // recalculate on resize
+  });
   resize();
 
   // Mouse
@@ -177,39 +184,31 @@ export function initScene(): void {
   let transitionSmooth = 0;
 
   function getSectionTransition(): number {
-    const sections = document.querySelectorAll<HTMLElement>('.hero, section[id], .bio-hero, .project-page, .projects-page');
-    if (!sections.length) return 0;
+    if (sectionBoundaries.length < 2) return 0;
+    const scrollPos = window.scrollY;
+    const margin = sectionScrollMargin;
 
-    const viewportCenter = window.scrollY + window.innerHeight / 2;
-    let closestIdx = 0;
-    let secondIdx = 0;
-    let closestDist = Infinity;
-    let secondDist = Infinity;
-    let totalHeightSections = 0;
+    // Find the nearest section snap point above and below scroll position
+    // Snap point = section top minus the scroll-margin (accounts for nav overlap)
+    let snapAbove = -Infinity;
+    let snapBelow = Infinity;
+    for (const s of sectionBoundaries) {
+      const snap = s.top - margin;
+      if (snap <= scrollPos && snap > snapAbove) snapAbove = snap;
+      if (snap > scrollPos && snap < snapBelow) snapBelow = snap;
+    }
 
-    // Find the two closest section centers
-    sections.forEach((el, idx) => {
-      const rect = el.getBoundingClientRect();
-      const elCenter = window.scrollY + rect.top + rect.height / 2;
-      const dist = Math.abs(viewportCenter - elCenter);
-      totalHeightSections += rect.height;
+    // At or above the first snap point, or at/below the last → no transition
+    if (snapAbove === -Infinity || snapBelow === Infinity) return 0;
 
-      if (dist < closestDist) {
-        secondDist = closestDist;
-        secondIdx = closestIdx;
-        closestDist = dist;
-        closestIdx = idx;
-      } else if (dist < secondDist) {
-        secondDist = dist;
-        secondIdx = idx;
-      }
-    });
-
-    // Normalized transition: 0 = at closest center, 1 = halfway between centers
-    const avgSectionHeight = totalHeightSections / sections.length;
-    const halfWay = avgSectionHeight * 0.4;
-    return Math.min(1, closestDist / halfWay);
+    // Transition = how far we are between the two snap points (0→1)
+    const range = snapBelow - snapAbove;
+    if (range <= 0) return 0;
+    return Math.min(1, (scrollPos - snapAbove) / range);
   }
+
+  // Cache boundaries on init + resize
+  cacheSectionBoundaries();
 
   function onScroll() {
     const current = window.scrollY;
@@ -244,7 +243,7 @@ export function initScene(): void {
     uniforms.uScroll.value = scroll;
     uniforms.uScrollVelocity.value = Math.min(velocitySmooth, 2.0);
     uniforms.uSection.value = section;
-    uniforms.uSectionTransition.value = Math.min(transitionSmooth, 1.0);
+    uniforms.uSectionTransition.value = 0.15 + Math.min(transitionSmooth, 0.85); // baseline 0.15 = subtle background glow
     uniforms.uMouse.value.set(mouse.x, mouse.y);
 
     // Animate 3D objects with scroll reactivity
@@ -291,7 +290,7 @@ export function initScene(): void {
   state = {
     renderer, scene, camera, shaderMaterial, mesh,
     mouse, targetMouse, scroll, scrollVelocity, section,
-    objects, clock, running, rafId: 0, lastScrollY,
+    sectionTransition, objects, clock, running, rafId: 0, lastScrollY,
   };
 
   animate();
