@@ -114,6 +114,7 @@ export function initScene(): void {
   }
 
   /* ── Event handlers ── */
+  const cleanupFns: (() => void)[] = [];
 
   function resize() {
     const w = window.innerWidth;
@@ -164,12 +165,12 @@ export function initScene(): void {
   let scrollVelocity = 0;
   let lastScrollY = window.scrollY;
   let velocitySmooth = 0;
-  const cleanupFns: (() => void)[] = [];
 
   function onScroll() {
     const current = window.scrollY;
     const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-    scroll = Math.min(current / maxScroll, 1);
+    // Clamp: top-overscroll (negative) → 0, bottom-overscroll (>1) → 1
+    scroll = Math.min(Math.max(current / maxScroll, 0), 1);
     const delta = Math.abs(current - lastScrollY);
     scrollVelocity = delta / 16;
     lastScrollY = current;
@@ -220,7 +221,8 @@ export function initScene(): void {
       const scrollDrift = (scroll - 0.5) * data.scrollAmp;
       obj.position.y += scrollDrift;
 
-      // Z-axis breathing with scroll velocity
+      // Z-axis breathing — mirrored negative so objects stay in front of shader plane (z=0)
+      // Ortho camera near=0, far=1 means visible z-range is [0, -1]. Positive z = invisible.
       obj.position.z = -Math.abs(Math.sin(elapsed * 0.5 + data.floatOffset) * 0.05 + velocitySmooth * 0.02);
 
       // Mouse repulsion with restoring spring
