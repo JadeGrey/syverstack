@@ -1,165 +1,90 @@
-/* ── Continuous scroll-linked stagger reveal ──
+/**
+ * staggerReveal.ts — NightCity Bloom Staggered Reveal
  *
- * Two modes:
- * 1. One-shot reveal (IntersectionObserver, triggered once per item group)
- * 2. Continuous scroll-linked progress (opacity/transform tied to scroll)
- *
- * Falls back to one-shot if prefers-reduced-motion.
+ * Uses .stagger-grid as container and .stagger-item as children.
+ * Each item is indexed 0..N with 60ms transition delay.
+ * Uses IntersectionObserver with 0.15 threshold.
+ * Supports Astro view transitions via window.__staggerReveal.refresh().
  */
 
-function isReducedMotion(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
+(function () {
+  'use strict';
 
-/* ── One-shot stagger reveal (existing behavior, enhanced) ── */
-function initOneShotReveal(): void {
-  const items = document.querySelectorAll<HTMLElement>('.stagger-item');
-  if (!items.length) {
-    // If no stagger items yet (dynamic content), retry
-    setTimeout(initOneShotReveal, 200);
-    return;
-  }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const item = entry.target as HTMLElement;
-          const group = item.closest('[data-stagger-group]');
-          const siblings = group
-            ? group.querySelectorAll<HTMLElement>('.stagger-item')
-            : [item];
-
-          siblings.forEach((sibling, idx) => {
-            sibling.style.setProperty('--stagger-index', String(idx));
-            sibling.classList.add('revealed');
-          });
-
-          observer.unobserve(item);
-        }
-      });
-    },
-    { threshold: 0.05, rootMargin: '0px 0px -40px 0px' }
-  );
-
-  items.forEach((item) => observer.observe(item));
-}
-
-/* ── Continuous scroll-linked reveal ──
- *
- * Elements with data-scroll-progress get their opacity/transform
- * mapped continuously to their position in the viewport.
- */
-function initScrollLinked(): void {
-  if (isReducedMotion()) return;
-
-  const elements = document.querySelectorAll<HTMLElement>('[data-scroll-progress]');
-  if (!elements.length) return;
-
-  function update() {
-    const viewportHeight = window.innerHeight;
-    elements.forEach((el) => {
-      const rect = el.getBoundingClientRect();
-      const elCenter = rect.top + rect.height / 2;
-
-      // Normalized position: 0 = just entering viewport, 1 = fully revealed
-      const enterPoint = viewportHeight * 0.7;
-      const exitPoint = viewportHeight * 0.2;
-      let progress = 0;
-
-      if (elCenter < enterPoint) {
-        progress = elCenter > exitPoint
-          ? 1 - ((enterPoint - elCenter) / (enterPoint - exitPoint))
-          : 1;
-      }
-
-      progress = Math.max(0, Math.min(1, progress));
-
-      const mode = el.dataset.scrollProgress || 'fade';
-      switch (mode) {
-        case 'fade':
-          el.style.opacity = String(progress);
-          break;
-        case 'slide':
-          el.style.opacity = String(progress);
-          el.style.transform = `translateY(${(1 - progress) * 30}px)`;
-          break;
-        case 'scale':
-          el.style.opacity = String(progress);
-          el.style.transform = `scale(${0.8 + progress * 0.2})`;
-          break;
-        case 'parallax':
-          const speed = parseFloat(el.dataset.scrollSpeed || '0.3');
-          const offset = (1 - progress) * viewportHeight * speed * 0.15;
-          el.style.transform = `translateY(${offset}px)`;
-          break;
-      }
-    });
-  }
-
-  // Throttled scroll listener
-  let ticking = false;
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      requestAnimationFrame(() => {
-        update();
-        ticking = false;
-      });
-      ticking = true;
-    }
-  }, { passive: true });
-
-  // Initial run
-  update();
-}
-
-/* ── Parallel follow: elements that follow scroll with delay ── */
-function initParallaxElements(): void {
-  if (isReducedMotion()) return;
-
-  const elements = document.querySelectorAll<HTMLElement>('[data-parallax]');
-  if (!elements.length) return;
-
-  let scrollY = window.scrollY;
-
-  window.addEventListener('scroll', () => {
-    scrollY = window.scrollY;
-  }, { passive: true });
-
-  function update() {
-    elements.forEach((el) => {
-      const speed = parseFloat(el.dataset.parallax || '0.2');
-      const rect = el.getBoundingClientRect();
-      // Only apply parallax when element is near viewport
-      if (rect.top < window.innerHeight + 200 && rect.bottom > -200) {
-        const offset = scrollY * speed;
-        el.style.transform = `translateY(${offset % 200}px)`;
-      }
-    });
-    requestAnimationFrame(update);
-  }
-
-  requestAnimationFrame(update);
-}
-
-/* ── Init ── */
-export function initStaggerReveal(): void {
-  if (isReducedMotion()) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('.stagger-item').forEach(el => el.classList.add('revealed'));
     return;
   }
 
-  initOneShotReveal();
-  initScrollLinked();
-  initParallaxElements();
-}
+  const THRESHOLD = 0.15;
+  const DELAY_MS = 60;
+  const REVEAL_CLASS = 'revealed';
+  const GRID_SELECTOR = '.stagger-grid';
+  const ITEM_SELECTOR = '.stagger-item';
 
-// Auto-init
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initStaggerReveal);
-} else {
-  initStaggerReveal();
-}
+  let observer: IntersectionObserver | null = null;
 
-// Re-init on Astro navigation
-document.addEventListener('astro:page-load', initStaggerReveal);
+  function getObserver() {
+    if (!observer) {
+      observer = new IntersectionObserver(onIntersect, { threshold: THRESHOLD });
+    }
+    return observer;
+  }
+
+  function onIntersect(entries: IntersectionObserverEntry[], obs: IntersectionObserver) {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        (entry.target as HTMLElement).classList.add(REVEAL_CLASS);
+        obs.unobserve(entry.target);
+      }
+    }
+  }
+
+  function indexItems(container: Element | null) {
+    const items = container
+      ? container.querySelectorAll<HTMLElement>(ITEM_SELECTOR)
+      : document.querySelectorAll<HTMLElement>(ITEM_SELECTOR);
+    items.forEach((item, i) => {
+      item.style.setProperty('--stagger-index', String(i));
+    });
+    return items;
+  }
+
+  function init() {
+    // 1. Index items inside every .stagger-grid
+    const grids = document.querySelectorAll(GRID_SELECTOR);
+    const indexedSet = new Set<HTMLElement>();
+    for (const grid of grids) {
+      const items = indexItems(grid);
+      items.forEach(item => indexedSet.add(item));
+    }
+
+    // 2. Index remaining standalone items (not inside any grid)
+    const allStandalone = document.querySelectorAll<HTMLElement>(ITEM_SELECTOR);
+    const standalone = Array.from(allStandalone).filter(el => !indexedSet.has(el));
+    standalone.forEach((el, i) => {
+      el.style.setProperty('--stagger-index', String(i));
+    });
+
+    // 3. Observe all items
+    const obs = getObserver();
+    allStandalone.forEach(item => obs.observe(item));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+
+  // Expose refresh for Astro navigation
+  (window as any).__staggerReveal = {
+    refresh() {
+      if (observer) { observer.disconnect(); observer = null; }
+      init();
+    },
+  };
+
+  document.addEventListener('astro:page-load', () => {
+    (window as any).__staggerReveal?.refresh();
+  });
+})();

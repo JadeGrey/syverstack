@@ -19,15 +19,15 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   </section>
 
   <!-- ====== PROJECTS ====== -->
-  <section id="projects" data-scroll-progress="slide">
+  <section id="projects">
     <div class="container">
       <div class="section-header stagger-item" style="--stagger-index: 0">
         <p class="section-number">PROJECTS</p>
         <h2 class="section-title">What I've built</h2>
         <div class="section-line"></div>
       </div>
-      <div data-stagger-group="projects" class="projects-grid">
-        <article class="project-card featured stagger-item glow-hover" data-parallax="0.15" style="--stagger-index: 0">
+      <div class="stagger-grid projects-grid">
+        <article class="project-card featured stagger-item glow-hover" style="--stagger-index: 0">
           <div class="project-info">
             <div class="project-icon">🤖</div>
             <h3 class="project-title">SyverClaw</h3>
@@ -41,7 +41,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           </div>
         </article>
 
-        <article class="project-card stagger-item glow-hover" data-parallax="0.1" style="--stagger-index: 1">
+        <article class="project-card stagger-item glow-hover" style="--stagger-index: 1">
           <div class="project-icon">🎵</div>
           <h3 class="project-title">YokaiBot</h3>
           <p class="project-desc">Feature-rich Discord bot in Rust — 23 slash commands across music, economy, and AI recommendation. PostgreSQL + pgvector + Songbird audio pipeline.</p>
@@ -50,7 +50,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           </div>
         </article>
 
-        <article class="project-card stagger-item glow-hover" data-parallax="0.08" style="--stagger-index: 2">
+        <article class="project-card stagger-item glow-hover" style="--stagger-index: 2">
           <div class="project-icon">🎨</div>
           <h3 class="project-title">THEMER</h3>
           <p class="project-desc">Multi-platform theme engine — design tokens, CSS variable generation, and cross-framework theming. Ships consistent visual identity across any frontend.</p>
@@ -63,14 +63,14 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   </section>
 
   <!-- ====== SKILLS ====== -->
-  <section id="skills" data-scroll-progress="slide">
+  <section id="skills">
     <div class="container">
       <div class="section-header stagger-item" style="--stagger-index: 0">
         <p class="section-number">SKILLS</p>
         <h2 class="section-title">What I work with</h2>
         <div class="section-line"></div>
       </div>
-      <div data-stagger-group="skills" class="skills-grid">
+      <div class="stagger-grid skills-grid">
         <div class="skill-category stagger-item glow-hover" style="--stagger-index: 0">
           <h3 class="skill-cat-title">Languages</h3>
           <div class="skill-tags">

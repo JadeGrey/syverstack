@@ -202,7 +202,7 @@ body::after {
   transform: translateY(24px);
   transition: opacity var(--duration-slow) var(--ease-base),
               transform var(--duration-slow) var(--ease-base);
-  transition-delay: calc(var(--stagger-index, 0) * 80ms);
+  transition-delay: calc(var(--stagger-index, 0) * 60ms);
 }
 .stagger-item.revealed {
   opacity: 1;

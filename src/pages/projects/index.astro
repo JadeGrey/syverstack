@@ -14,7 +14,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
         <div class="section-line"></div>
       </div>
 
-      <div data-stagger-group="projects-list" class="projects-all-grid">
+      <div class="stagger-grid projects-all-grid">
         {projects.map((project, idx) => (
           <a href={`/projects/${project.slug}`} class="project-all-card stagger-item glow-hover" style={`--stagger-index: ${idx}`}>
             <div class="project-all-icon">{project.data.icon || '📦'}</div>
