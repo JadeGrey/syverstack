@@ -36,11 +36,22 @@ const rightLink = variant === 'home' ? { href: '/bio', label: 'BIO →' } : { hr
     left: 0;
     right: 0;
     z-index: 100;
-    padding: 1.5rem 0;
-    background: rgba(5, 7, 13, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    padding: 1rem env(safe-area-inset-right, 1.5rem);
+    padding-top: max(1rem, env(safe-area-inset-top));
+    background: #05070d;
     border-bottom: 1px solid var(--color-border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background: #05070d;
   }
   .nav-inner {
     display: flex;
